@@ -20,19 +20,12 @@ namespace ServoTester
   public partial class Form1 : Form
   {
     //_Packet Packet = new _Packet();
+    _comm Comm = new _comm();
 
-    public const ushort SERIAL_BUF_SIZE = 128 * 16;
     Thread myThread = null;
     public bool myThread_flag = false;
-    //SerialPort serialPort;
-    SerialPort Port { get; } = new SerialPort();
-    public byte[] ComReadBuffer = new byte[128 * 16 * 8];
-    public byte[] SendDataPacket = new byte[SERIAL_BUF_SIZE];
-    public int ComReadIndex = 0;
-    public ConcurrentQueue<byte> cq = new ConcurrentQueue<byte>();
 
     bool timer_working = false;
-    private bool port_working = false;
 
     [StructLayout(LayoutKind.Explicit)]
     struct TestUnion
@@ -54,58 +47,59 @@ namespace ServoTester
     public Form1()
     {
       InitializeComponent();
-      // refresh port
+      // 통신포트목록을 만든다.
       PortRefresh();
       cbBaudrate.SelectedIndex = 0;
     }
+
+    private void Form1_Load(object sender, EventArgs e)
+    {
+
+    }
+
     private void btCommRefresh_Click(object sender, EventArgs e)
     {
-      //Refresh
+      // 통신포트목록을 만든다.
       PortRefresh();
     }
+
     private void PortRefresh()
     {
-      // clear
+      // 기존 목록 지운다.
       cbCommPorts.Items.Clear();
-      // get port list
+      // 목록을 가져온다.
       var ports = SerialPort.GetPortNames().OrderBy(x => x);
-      // check ports
+      // 포트항목을 정리한다.
       foreach (var port in ports)
-        // add port
+        // 포트항목을 추가한다.
         cbCommPorts.Items.Add(port);
-      // check item count
+      // 가능한 갯수 확인한다.
       if (cbCommPorts.Items.Count > 0)
-        // select first
+        // 첫항목을 선택한다.
         cbCommPorts.SelectedIndex = 0;
     }
+
     private void btCommOpen_Click(object sender, EventArgs e)
     {
-      // check port
-      switch (Port.IsOpen)
+      // 통신을 개시할지 닫을지 선택한다.
+      switch (Comm.Port.IsOpen)
       {
         case false when btCommOpen.Text == @"Open":
-          // get port and baudrate
+          // 포트번호와 보드레이트 정보를 가져온다.
           var port = cbCommPorts.Text;
           var baudrate = Convert.ToInt32(cbBaudrate.Text);
-          // check port
+          // 맞게 설정되었는지 확인한다.
           if (string.IsNullOrWhiteSpace(port))
             break;
           // try catch
           try
           {
-            ComReadIndex = 0;
-            // set port
-            Port.PortName = port;
-            Port.BaudRate = baudrate;
-            Port.Encoding = Encoding.GetEncoding(28591);
-            // open
-            Port.Open();
-            // set event
-            Port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            // 통신 시작
+            Comm.Open(port, baudrate);
 
-            // start timer
+            // timer 시작
             workTimer.Start();
-            // change button text
+            // button text 바꾸기
             btCommOpen.Text = @"Close";
 
             myThread_flag = true;
@@ -124,18 +118,13 @@ namespace ServoTester
           // try catch
           try
           {
-            // close
-            while (port_working) { }
-            //clear Port
-            Port.DiscardOutBuffer();
-            Port.DiscardInBuffer();
-            Port.Close();
-            // stop timer
-            while (timer_working) { }
+            // 닫기
+            Comm.Close();
+            // timer 정지
+            while (timer_working) { Thread.Sleep(1); }
             workTimer.Stop();
-            // change button text
+            // button text 바꾸기
             btCommOpen.Text = @"Open";
-            Port.DataReceived -= new SerialDataReceivedEventHandler(DataReceivedHandler);
 
             myThread_flag = false;
           }
@@ -151,26 +140,7 @@ namespace ServoTester
           break;
       }
     }
-    private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-    {
-      try
-      {
-        if (Port.IsOpen)
-        {
-          port_working = true;
-          byte[] data = Port.Encoding.GetBytes(Port.ReadExisting());
-          for (int i = 0; i < data.Count(); i++)
-          {
-            cq.Enqueue(data[i]);
-          }
-          port_working = false;
-        }
-      }
-      finally
-      {
-        //Packet.Port.Close();
-      }
-    }
+
     private void myFunc()
     {
       byte data;
