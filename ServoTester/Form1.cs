@@ -19,8 +19,12 @@ namespace ServoTester
 {
   public partial class Form1 : Form
   {
-    //_Packet Packet = new _Packet();
-    _comm Comm = new _comm();
+    public _comm Comm = null;
+    public _Packet Packet = null;
+    public ScottPlot.WinForms.FormsPlot Plot = null;
+    public SerialPort Port { get; } = new SerialPort();
+    
+    
 
     Thread myThread = null;
     public bool myThread_flag = false;
@@ -47,9 +51,12 @@ namespace ServoTester
     public Form1()
     {
       InitializeComponent();
+      Comm = new _comm(this);
+      Packet = new _Packet(this);
       // 통신포트목록을 만든다.
       PortRefresh();
       cbBaudrate.SelectedIndex = 0;
+      Plot = this.formsPlot1;
     }
 
     private void Form1_Load(object sender, EventArgs e)
@@ -96,12 +103,10 @@ namespace ServoTester
           {
             // 통신 시작
             Comm.Open(port, baudrate);
-
             // timer 시작
             workTimer.Start();
             // button text 바꾸기
             btCommOpen.Text = @"Close";
-
             myThread_flag = true;
             myThread = new Thread(myFunc);
             myThread.Start();
@@ -125,7 +130,6 @@ namespace ServoTester
             workTimer.Stop();
             // button text 바꾸기
             btCommOpen.Text = @"Open";
-
             myThread_flag = false;
           }
           catch (Exception ex)
@@ -148,8 +152,13 @@ namespace ServoTester
       while (myThread_flag)
       {
         //Packet.ProcessPcMcReceivedCommData(ref Mc);
-        Thread.Sleep(10);
+        Thread.Sleep(30);
       }
+    }
+
+    private void workTimer_Tick(object sender, EventArgs e)
+    {
+
     }
   }
 }
