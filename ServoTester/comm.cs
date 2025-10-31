@@ -2,12 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ServoTester
 {
@@ -16,8 +18,11 @@ namespace ServoTester
     Form1 form = null;
     _Packet Packet = null;
     public const ushort SERIAL_BUF_SIZE = 128 * 16;
-    public SerialPort Port { get; } = new SerialPort();
-    //SerialPort Port = null;
+    SerialPort Port = null;
+    public int ControlMode = 0;
+    public bool ServoOnOff = false;
+    public int ServoError = 0;
+    public int Encoder = 0;
     public byte[] ComReadBuffer = new byte[128 * 16 * 8];
     public byte[] SendDataPacket = new byte[SERIAL_BUF_SIZE];
     public int ComReadIndex = 0;
@@ -45,6 +50,7 @@ namespace ServoTester
     {
       form = _form;
       Packet = _form.Packet;
+      Port = _form.Port;
     }
 
     public void Open(string port,int baudrate)
@@ -76,26 +82,26 @@ namespace ServoTester
     {
       if (Port.IsOpen)
       {
-        port_working = true;
-        byte[] data = Port.Encoding.GetBytes(Port.ReadExisting());
-        for (int i = 0; i < data.Count(); i++)
+        try
         {
-          cq.Enqueue(data[i]);
+          port_working = true;
+          byte[] data = Port.Encoding.GetBytes(Port.ReadExisting());
+          for (int i = 0; i < data.Count(); i++)
+          {
+            cq.Enqueue(data[i]);
+          }
+          port_working = false;
         }
-        port_working = false;
+        finally
+        {
+          MessageBox.Show("Enque 에러.");
+        }
       }
     }
 
     public void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
     {
-      try
-      {
-        Enqueue();
-      }
-      finally
-      {
-        //Packet.Port.Close();
-      }
+      Enqueue();
     }
 
     public ushort GetCRC(byte[] data, int Length)
@@ -152,220 +158,69 @@ namespace ServoTester
               // check command
               switch (Command)
               {
-                case 1:
-                  if (StartAddress == 1 || StartAddress == 2)// || StartAddress == 3)
+                case 1: // 명령
+                  if (StartAddress == 1   // 모드설정
+                    || StartAddress == 2  // Servo On/Off
+                    || StartAddress == 3  // 속도 명령 RPM
+                    || StartAddress == 4) // 토크 명령 %
                   {
                     Packet.ResetAckState();
                   }
-                  else if (StartAddress == 3)
+                  else
                   {
-                    Packet.ResetAckState();
-                    //Packet.MakeAndSendData(1, 1, 0, ref Mc);
-                  }
-                  else if (StartAddress == 4)
-                  {
-                    Packet.AckSend(Command, 0, StartAddress, 0);       // return Ack OK
-                    //Mc.Info.u16Con_Model_Type = (ushort)((ComReadBuffer[11] << 8) | ComReadBuffer[10]);
-                    //Mc.Info.u16Version = (ushort)((ComReadBuffer[13] << 8) | ComReadBuffer[12]);
-                  }
+                    MessageBox.Show("Cammand 1 에러.");
+                  } 
                   break;
-                case 2:
-                  if (StartAddress == 1 || StartAddress == 2 || StartAddress == 3 || StartAddress == 4 ||
-                      StartAddress == 6 || StartAddress == 7 || StartAddress == 8 || StartAddress == 9 || StartAddress == 10)
+                case 2: // 게인
+                  if (StartAddress == 1   // 속도 Kp
+                    || StartAddress == 2  // 속도 Ki
+                    || StartAddress == 3  // 전류 Kp
+                    || StartAddress == 4) // 전류 Ki
                   {
                     Packet.ResetAckState();
                   }
-                  else if (StartAddress == 5)
+                  else
                   {
-                    // this.Invoke(new Action(delegate ()
-                    // {
-                    //   btMcInit.Text = @"Init MC - No";
-                    // }));
-                  }
-                  else if (StartAddress == 11)
-                  {
-                    Packet.AckSend(Command, 0, StartAddress, 0);       // return Ack OK
-                    //Mc.Var.Mcinitialized = ComReadBuffer[11];
-                    // this.Invoke(new Action(delegate ()
-                    // {
-                    //   if (Mc.Var.Mcinitialized != 0)
-                    //   {
-                    //     btMcInit.Text = @"Init MC - Yes";
-                    //   }
-                    //   else
-                    //   {
-                    //     btMcInit.Text = @"Init MC - No";
-                    //   }
-                    // }));
+                    MessageBox.Show("Cammand 2 에러.");
                   }
                   break;
-                case 3:// Pc <- Mc, Cyclic
-                  //Mc.Var.TqSensorValue = (ushort)((ComReadBuffer[13] << 8) | ComReadBuffer[12]);
-
-                  //Mc.Var.TqSensorOffsetValue = (ushort)((ComReadBuffer[15] << 8) | ComReadBuffer[14]);
-                  //Mc.DriverInfo.u16TorqueSensorOffset = Mc.Var.TqSensorOffsetValue;
-
-                  //Mc.Var.Error = (ushort)((ComReadBuffer[29] << 8) | ComReadBuffer[28]);
-                  //// tbError.Text = Error.ToString();//ui
-                  //Mc.Var.IniStep = ComReadBuffer[39];
-                  //Mc.Var.MaintCnt = (uint)((ComReadBuffer[51] << 24) | (ComReadBuffer[50] << 16) | (ComReadBuffer[49] << 8) | ComReadBuffer[48]);
-                  //// tbMaintCnt.Text = Mc.Var.MaintCnt.ToString();//ui
-                  //Mc.Var.Enc = (ushort)((ComReadBuffer[41] << 8) | ComReadBuffer[40]);
-                  //// tbEnc.Text = Mc.Var.Enc.ToString();//ui
-
-                  //Mc.Var.MotorState = ((ComReadBuffer[27] << 8) | ComReadBuffer[26]) != 0;
-                  //Mc.Flag.b1Run = ComReadBuffer[26];
-                  //Mc.Flag.b1ControlFL = ComReadBuffer[30];
-
-                  //if (ComReadBuffer[42] != 0)
-                  //  Mc.AutoSetting.FlagSetting = true;
-                  //else
-                  //  Mc.AutoSetting.FlagSetting = false;
-
-                  //if (ComReadBuffer[43] != 0)
-                  //  Mc.AutoSetting.FlagStart = true;
-                  //else
-                  //  Mc.AutoSetting.FlagStart = false;
-
-                  byte b1Run = (byte)(ComReadBuffer[44] & 0x01);
-                  //if (Mc.Var.FlagRun[0] != b1Run)
-                  //{
-                  //  //Packet.MakeAndSendData(2, 2, b1Run, ref Mc);
-                  //}
-                  //Mc.Var.FlagRun[2] = Mc.Var.FlagRun[1];
-                  //Mc.Var.FlagRun[1] = Mc.Var.FlagRun[0];
-                  //Mc.Var.FlagRun[0] = (byte)(ComReadBuffer[44] & 0x01);
-
-                  byte b1ControlFL = (byte)(ComReadBuffer[44] & 0x02);
-                  //if (Mc.Var.FlagFL[0] != b1ControlFL)
-                  //{
-                  //  //if (b1ControlFL != 0)
-                  //  //  Packet.MakeAndSendData(2, 1, 1, ref Mc);
-                  //  //else
-                  //  //  Packet.MakeAndSendData(2, 1, 0, ref Mc);
-                  //}
-                  //Mc.Var.FlagFL[2] = Mc.Var.FlagFL[1];
-                  //Mc.Var.FlagFL[1] = Mc.Var.FlagFL[0];
-                  //Mc.Var.FlagFL[0] = b1ControlFL;
-
-                  //if (ComReadBuffer[63] != 0)
-                  //  Mc.Var.Mot_or_Nut = true;
-                  //else
-                  //  Mc.Var.Mot_or_Nut = false;
-
+                case 3: // 상태
+                  if (ComReadBuffer[10] == 0)
+                    ServoOnOff = false; // Off
+                  else
+                    ServoOnOff = true;  // On
+                  if (ComReadBuffer[11] == 0)
+                    ControlMode = 0;    // 속도 모드
+                  else
+                    ControlMode = 1;    // 토크 모드
+                  ServoError = (int)(ComReadBuffer[14] << 0);
+                  ServoError = (int)(ComReadBuffer[15] << 8);
+                  ServoError = (int)(ComReadBuffer[16] << 16);
+                  ServoError = (int)(ComReadBuffer[17] << 24);
+                  
+                  Encoder = (int)(ComReadBuffer[18] << 0);
+                  Encoder = (int)(ComReadBuffer[19] << 8);
+                  Encoder = (int)(ComReadBuffer[20] << 16);
+                  Encoder = (int)(ComReadBuffer[21] << 24);
                   break;
-                case 4:
-                  if (StartAddress == 1)
-                  {
-                    Packet.AckSend(Command, 0, StartAddress, 0);       // return Ack OK
-                  }
-                  //Mc.Var.graph_count++;
-                  //fresh_graph_data(ref Mc);
-                  break;
-                case 5:
-                  if (StartAddress == 1)
-                  {
-                    Packet.AckSend(Command, 0, StartAddress, 0);       // return Ack OK
-                  }
-                  //Mc.AutoSetting.CurrentSpeed = (ushort)((ComReadBuffer[119] << 8) | ComReadBuffer[118]);
-                  //Mc.AutoSetting.CurrentSeatingPoint = (ushort)((ComReadBuffer[121] << 8) | ComReadBuffer[120]);
-                  //Mc.AutoSetting.CurrentFSpeed = (ushort)((ComReadBuffer[123] << 8) | ComReadBuffer[122]);
-                  //Mc.AutoSetting.CurrentFAngle = (ushort)((ComReadBuffer[125] << 8) | ComReadBuffer[124]);
-                  break;
-                case 6:
-                  break;
-                case 7:
-                  // if (StartAddress == 1)//download Driver info
-                  if (StartAddress == 2)//upload Driver info
-                  {
-                    Packet.AckSend(Command, 0, StartAddress, 0);       // return Ack OK
-                    //Mc.DriverInfo.u16Type = (ushort)((ComReadBuffer[11] << 8) | ComReadBuffer[10]);
-                    //Mc.DriverInfo.u16Version = (ushort)((ComReadBuffer[13] << 8) | ComReadBuffer[12]);
-                    //Mc.DriverInfo.u16Serial_low = (ushort)((ComReadBuffer[15] << 8) | ComReadBuffer[14]);
-                    //Mc.DriverInfo.u16Serial_high = (ushort)((ComReadBuffer[17] << 8) | ComReadBuffer[16]);
-                    //Mc.DriverInfo.u8Factory_Gear_efficiency = (ushort)((ComReadBuffer[19] << 8) | ComReadBuffer[18]);
-                    //Mc.DriverInfo.u8User_Gear_efficiency = (ushort)((ComReadBuffer[21] << 8) | ComReadBuffer[20]);
-                    //Mc.DriverInfo.u16DriverVendor = (ushort)((ComReadBuffer[23] << 8) | ComReadBuffer[22]);
-                    //Mc.Var.DriverInfoIsReady = true;
-                    //if (Mc.Var.IniStep != 11)
-                    //  Packet.MakeAndSendData(1, 3, 0, ref Mc);
-                  }
-                  else if (StartAddress == 3)//Speaker On/Off
-                  { }
-                  else if (StartAddress == 4)//Led band
-                  { }
-                  // else if (StartAddress == 5)//Reserved
-                  // else if (StartAddress == 6)//Reserved
-                  else if (StartAddress == 7)// Get Torque Offset
-                  {
-                    d.b0 = ComReadBuffer[12];
-                    d.b0 = ComReadBuffer[13];
-                    d.b0 = ComReadBuffer[14];
-                    d.b0 = ComReadBuffer[15];
-                    //Mc.DriverInfo.f32TorqueOffset = d.f;
-                    //Mc.Var.DriverInfo_TorqueOffsetIsReady = true;
-                  }
-                  else if (StartAddress == 8)//reset maintenance
-                  { }
-                  // else if (StartAddress == 9)//Reserved
-                  else if (StartAddress == 10)//Check Torque offset value
-                  { }
-                  else if (StartAddress == 11)//Save Torque offset value
-                  { }
-                  else if (StartAddress == 12)//Start/Stop Initail Angle
-                  { }
-                  else if (StartAddress == 13)// receive initial angle result Pc <- Mc
-                  {
-                    //Mc.Var.CalibResultState = (int)((ComReadBuffer[11] << 11) | ComReadBuffer[10]);
-                    Packet.AckSend(Command, 0, StartAddress, 0);       // return Ack OK
-                  }
-                  // else if (StartAddress == 13)// Pc -> Mc
-                  else if (StartAddress == 101)// Pc <- Mc
-                  {
-                    int CalibStepState1 = (int)((ComReadBuffer[11] << 8) | ComReadBuffer[10]);
-                    //if (CalibStepState1 == 0)
-                    //  Mc.Var.CalibStepState = 0;
-                    //else if (CalibStepState1 == 1)
-                    //  Mc.Var.CalibStepState = 1;
-                    //else if (CalibStepState1 == 2 || CalibStepState1 == 3)
-                    //  Mc.Var.CalibStepState = 2;
-                    //else if (CalibStepState1 == 4 || CalibStepState1 == 5)
-                    //  Mc.Var.CalibStepState = 3;
-                    //else
-                    //  Mc.Var.CalibStepState = 4;
-                    Packet.AckSend(Command, Try_num, StartAddress, 0);       // return Ack OK
-                  }
-                  break;
-                case 104:
-                  // get value
-                  // Mc.Var.MotorState = ((ComReadBuffer[3] << 8) | ComReadBuffer[4]) != 0;
-                  if (StartAddress == 1)// Pc -> Mc
-                  {
-
-                  }
-                  else if (StartAddress == 2)// Pc <- Mc
-                  {
-                    //Mc.Var.MotorState = ((ComReadBuffer[11] << 8) | ComReadBuffer[10]) != 0;
-                    // Mc.Var.CalibStepState = ((ComReadBuffer[11] << 8) | ComReadBuffer[10]);
-                    // Mc.Var.CalibResultState = ((ComReadBuffer[11] << 8) | ComReadBuffer[10]);
-                  }
-                  break;
-                case 106:
+                case 4: // graph
                   break;
                 default:
+                  MessageBox.Show("알 수 없는 Cammand 에러.");
                   break;
               }
             }
             else
             {
-              // AckSend(Command, Try_num, StartAddress, 2);       // return check CRC error
+              MessageBox.Show("CRC 에러.");
             }
           }
         }
-        else if (((ComReadIndex > 0) && (ComReadBuffer[0] != 0x5A))  // packet 에러 검사
+        else if (((ComReadIndex > 0) && (ComReadBuffer[0] != 0x5A)) // packet 에러 검사
             || ((ComReadIndex > 1) && (ComReadBuffer[1] != 0xA5)))  // packet 에러 검사
         {
           ComReadIndex = 0;// no return Ack
+          MessageBox.Show("Packet 에러.");
         }
       }
     }

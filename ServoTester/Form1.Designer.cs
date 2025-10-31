@@ -42,25 +42,32 @@
       this.checkBox3 = new System.Windows.Forms.CheckBox();
       this.checkBox4 = new System.Windows.Forms.CheckBox();
       this.groupBox1 = new System.Windows.Forms.GroupBox();
-      this.checkBox6 = new System.Windows.Forms.CheckBox();
-      this.checkBox5 = new System.Windows.Forms.CheckBox();
+      this.cbTorqueMode = new System.Windows.Forms.CheckBox();
+      this.cbSpeedMode = new System.Windows.Forms.CheckBox();
       this.groupBox2 = new System.Windows.Forms.GroupBox();
       this.label6 = new System.Windows.Forms.Label();
       this.label5 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
       this.label3 = new System.Windows.Forms.Label();
-      this.textBox4 = new System.Windows.Forms.TextBox();
-      this.textBox3 = new System.Windows.Forms.TextBox();
-      this.textBox2 = new System.Windows.Forms.TextBox();
-      this.textBox1 = new System.Windows.Forms.TextBox();
-      this.textBox5 = new System.Windows.Forms.TextBox();
+      this.tbCurrentKi = new System.Windows.Forms.TextBox();
+      this.tbCurrentKp = new System.Windows.Forms.TextBox();
+      this.tbSpeedKi = new System.Windows.Forms.TextBox();
+      this.tbSpeedKp = new System.Windows.Forms.TextBox();
+      this.tbServoError = new System.Windows.Forms.TextBox();
       this.label7 = new System.Windows.Forms.Label();
       this.label8 = new System.Windows.Forms.Label();
-      this.button1 = new System.Windows.Forms.Button();
+      this.btServoOnOff = new System.Windows.Forms.Button();
       this.label9 = new System.Windows.Forms.Label();
-      this.textBox6 = new System.Windows.Forms.TextBox();
-      this.radioButton1 = new System.Windows.Forms.RadioButton();
-      this.radioButton2 = new System.Windows.Forms.RadioButton();
+      this.tbCommand = new System.Windows.Forms.TextBox();
+      this.rbServoOff = new System.Windows.Forms.RadioButton();
+      this.rbServoOn = new System.Windows.Forms.RadioButton();
+      this.label10 = new System.Windows.Forms.Label();
+      this.tbEncoder = new System.Windows.Forms.TextBox();
+      this.btSpeedKpSet = new System.Windows.Forms.Button();
+      this.btSpeedKiSet = new System.Windows.Forms.Button();
+      this.btCurrentKpSet = new System.Windows.Forms.Button();
+      this.btCurrentKiSet = new System.Windows.Forms.Button();
+      this.button1 = new System.Windows.Forms.Button();
       this.groupBox1.SuspendLayout();
       this.groupBox2.SuspendLayout();
       this.SuspendLayout();
@@ -142,7 +149,7 @@
       // 
       // workTimer
       // 
-      this.workTimer.Interval = 30;
+      this.workTimer.Interval = 50;
       this.workTimer.Tick += new System.EventHandler(this.workTimer_Tick);
       // 
       // checkBox1
@@ -187,45 +194,50 @@
       // 
       // groupBox1
       // 
-      this.groupBox1.Controls.Add(this.checkBox6);
-      this.groupBox1.Controls.Add(this.checkBox5);
-      this.groupBox1.Location = new System.Drawing.Point(778, 92);
+      this.groupBox1.Controls.Add(this.cbTorqueMode);
+      this.groupBox1.Controls.Add(this.cbSpeedMode);
+      this.groupBox1.Location = new System.Drawing.Point(778, 128);
       this.groupBox1.Name = "groupBox1";
       this.groupBox1.Size = new System.Drawing.Size(200, 47);
       this.groupBox1.TabIndex = 10;
       this.groupBox1.TabStop = false;
       this.groupBox1.Text = "모드 설정";
       // 
-      // checkBox6
+      // cbTorqueMode
       // 
-      this.checkBox6.AutoSize = true;
-      this.checkBox6.Location = new System.Drawing.Point(105, 20);
-      this.checkBox6.Name = "checkBox6";
-      this.checkBox6.Size = new System.Drawing.Size(72, 16);
-      this.checkBox6.TabIndex = 12;
-      this.checkBox6.Text = "토크모드";
-      this.checkBox6.UseVisualStyleBackColor = true;
+      this.cbTorqueMode.AutoSize = true;
+      this.cbTorqueMode.Location = new System.Drawing.Point(111, 20);
+      this.cbTorqueMode.Name = "cbTorqueMode";
+      this.cbTorqueMode.Size = new System.Drawing.Size(72, 16);
+      this.cbTorqueMode.TabIndex = 12;
+      this.cbTorqueMode.Text = "토크모드";
+      this.cbTorqueMode.UseVisualStyleBackColor = true;
       // 
-      // checkBox5
+      // cbSpeedMode
       // 
-      this.checkBox5.AutoSize = true;
-      this.checkBox5.Location = new System.Drawing.Point(8, 20);
-      this.checkBox5.Name = "checkBox5";
-      this.checkBox5.Size = new System.Drawing.Size(72, 16);
-      this.checkBox5.TabIndex = 11;
-      this.checkBox5.Text = "속도모드";
-      this.checkBox5.UseVisualStyleBackColor = true;
+      this.cbSpeedMode.AutoSize = true;
+      this.cbSpeedMode.ForeColor = System.Drawing.SystemColors.ControlText;
+      this.cbSpeedMode.Location = new System.Drawing.Point(19, 20);
+      this.cbSpeedMode.Name = "cbSpeedMode";
+      this.cbSpeedMode.Size = new System.Drawing.Size(72, 16);
+      this.cbSpeedMode.TabIndex = 11;
+      this.cbSpeedMode.Text = "속도모드";
+      this.cbSpeedMode.UseVisualStyleBackColor = true;
       // 
       // groupBox2
       // 
+      this.groupBox2.Controls.Add(this.btCurrentKiSet);
+      this.groupBox2.Controls.Add(this.btCurrentKpSet);
+      this.groupBox2.Controls.Add(this.btSpeedKiSet);
+      this.groupBox2.Controls.Add(this.btSpeedKpSet);
       this.groupBox2.Controls.Add(this.label6);
       this.groupBox2.Controls.Add(this.label5);
       this.groupBox2.Controls.Add(this.label4);
       this.groupBox2.Controls.Add(this.label3);
-      this.groupBox2.Controls.Add(this.textBox4);
-      this.groupBox2.Controls.Add(this.textBox3);
-      this.groupBox2.Controls.Add(this.textBox2);
-      this.groupBox2.Controls.Add(this.textBox1);
+      this.groupBox2.Controls.Add(this.tbCurrentKi);
+      this.groupBox2.Controls.Add(this.tbCurrentKp);
+      this.groupBox2.Controls.Add(this.tbSpeedKi);
+      this.groupBox2.Controls.Add(this.tbSpeedKp);
       this.groupBox2.Location = new System.Drawing.Point(778, 248);
       this.groupBox2.Name = "groupBox2";
       this.groupBox2.Size = new System.Drawing.Size(200, 133);
@@ -269,49 +281,54 @@
       this.label3.TabIndex = 4;
       this.label3.Text = "속도 게인(Kp)";
       // 
-      // textBox4
+      // tbCurrentKi
       // 
-      this.textBox4.Location = new System.Drawing.Point(89, 102);
-      this.textBox4.Name = "textBox4";
-      this.textBox4.Size = new System.Drawing.Size(100, 21);
-      this.textBox4.TabIndex = 3;
+      this.tbCurrentKi.Location = new System.Drawing.Point(89, 102);
+      this.tbCurrentKi.Name = "tbCurrentKi";
+      this.tbCurrentKi.Size = new System.Drawing.Size(57, 21);
+      this.tbCurrentKi.TabIndex = 3;
+      this.tbCurrentKi.Text = "100";
       // 
-      // textBox3
+      // tbCurrentKp
       // 
-      this.textBox3.Location = new System.Drawing.Point(89, 75);
-      this.textBox3.Name = "textBox3";
-      this.textBox3.Size = new System.Drawing.Size(100, 21);
-      this.textBox3.TabIndex = 2;
+      this.tbCurrentKp.Location = new System.Drawing.Point(89, 75);
+      this.tbCurrentKp.Name = "tbCurrentKp";
+      this.tbCurrentKp.Size = new System.Drawing.Size(57, 21);
+      this.tbCurrentKp.TabIndex = 2;
+      this.tbCurrentKp.Text = "100";
       // 
-      // textBox2
+      // tbSpeedKi
       // 
-      this.textBox2.Location = new System.Drawing.Point(89, 48);
-      this.textBox2.Name = "textBox2";
-      this.textBox2.Size = new System.Drawing.Size(100, 21);
-      this.textBox2.TabIndex = 1;
+      this.tbSpeedKi.Location = new System.Drawing.Point(89, 48);
+      this.tbSpeedKi.Name = "tbSpeedKi";
+      this.tbSpeedKi.Size = new System.Drawing.Size(57, 21);
+      this.tbSpeedKi.TabIndex = 1;
+      this.tbSpeedKi.Text = "100";
       // 
-      // textBox1
+      // tbSpeedKp
       // 
-      this.textBox1.Location = new System.Drawing.Point(89, 21);
-      this.textBox1.Name = "textBox1";
-      this.textBox1.Size = new System.Drawing.Size(100, 21);
-      this.textBox1.TabIndex = 0;
+      this.tbSpeedKp.Location = new System.Drawing.Point(89, 21);
+      this.tbSpeedKp.Name = "tbSpeedKp";
+      this.tbSpeedKp.Size = new System.Drawing.Size(58, 21);
+      this.tbSpeedKp.TabIndex = 0;
+      this.tbSpeedKp.Text = "100";
       // 
-      // textBox5
+      // tbServoError
       // 
-      this.textBox5.Location = new System.Drawing.Point(867, 202);
-      this.textBox5.Name = "textBox5";
-      this.textBox5.Size = new System.Drawing.Size(100, 21);
-      this.textBox5.TabIndex = 8;
+      this.tbServoError.Location = new System.Drawing.Point(867, 74);
+      this.tbServoError.Name = "tbServoError";
+      this.tbServoError.Size = new System.Drawing.Size(100, 21);
+      this.tbServoError.TabIndex = 8;
+      this.tbServoError.Text = "0";
       // 
       // label7
       // 
       this.label7.AutoSize = true;
-      this.label7.Location = new System.Drawing.Point(801, 207);
+      this.label7.Location = new System.Drawing.Point(801, 79);
       this.label7.Name = "label7";
-      this.label7.Size = new System.Drawing.Size(57, 12);
+      this.label7.Size = new System.Drawing.Size(45, 12);
       this.label7.TabIndex = 8;
-      this.label7.Text = "엔코더 값";
+      this.label7.Text = "에러 값";
       // 
       // label8
       // 
@@ -322,66 +339,137 @@
       this.label8.TabIndex = 12;
       this.label8.Text = "시간";
       // 
-      // button1
+      // btServoOnOff
       // 
-      this.button1.Location = new System.Drawing.Point(786, 145);
-      this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(89, 23);
-      this.button1.TabIndex = 13;
-      this.button1.Text = "Servo On/Off";
-      this.button1.UseVisualStyleBackColor = true;
+      this.btServoOnOff.Location = new System.Drawing.Point(786, 181);
+      this.btServoOnOff.Name = "btServoOnOff";
+      this.btServoOnOff.Size = new System.Drawing.Size(89, 23);
+      this.btServoOnOff.TabIndex = 13;
+      this.btServoOnOff.Text = "Servo On";
+      this.btServoOnOff.UseVisualStyleBackColor = true;
       // 
       // label9
       // 
       this.label9.AutoSize = true;
-      this.label9.Location = new System.Drawing.Point(811, 181);
+      this.label9.Location = new System.Drawing.Point(811, 217);
       this.label9.Name = "label9";
       this.label9.Size = new System.Drawing.Size(29, 12);
       this.label9.TabIndex = 9;
       this.label9.Text = "명령";
       // 
-      // textBox6
+      // tbCommand
       // 
-      this.textBox6.Location = new System.Drawing.Point(867, 175);
-      this.textBox6.Name = "textBox6";
-      this.textBox6.Size = new System.Drawing.Size(100, 21);
-      this.textBox6.TabIndex = 8;
+      this.tbCommand.Location = new System.Drawing.Point(867, 211);
+      this.tbCommand.Name = "tbCommand";
+      this.tbCommand.Size = new System.Drawing.Size(58, 21);
+      this.tbCommand.TabIndex = 8;
+      this.tbCommand.Text = "0";
       // 
-      // radioButton1
+      // rbServoOff
       // 
-      this.radioButton1.AutoSize = true;
-      this.radioButton1.Location = new System.Drawing.Point(886, 150);
-      this.radioButton1.Name = "radioButton1";
-      this.radioButton1.Size = new System.Drawing.Size(38, 16);
-      this.radioButton1.TabIndex = 14;
-      this.radioButton1.TabStop = true;
-      this.radioButton1.Text = "Off";
-      this.radioButton1.UseVisualStyleBackColor = true;
+      this.rbServoOff.AutoSize = true;
+      this.rbServoOff.Location = new System.Drawing.Point(886, 186);
+      this.rbServoOff.Name = "rbServoOff";
+      this.rbServoOff.Size = new System.Drawing.Size(38, 16);
+      this.rbServoOff.TabIndex = 14;
+      this.rbServoOff.TabStop = true;
+      this.rbServoOff.Text = "Off";
+      this.rbServoOff.UseVisualStyleBackColor = true;
       // 
-      // radioButton2
+      // rbServoOn
       // 
-      this.radioButton2.AutoSize = true;
-      this.radioButton2.Location = new System.Drawing.Point(931, 150);
-      this.radioButton2.Name = "radioButton2";
-      this.radioButton2.Size = new System.Drawing.Size(39, 16);
-      this.radioButton2.TabIndex = 15;
-      this.radioButton2.TabStop = true;
-      this.radioButton2.Text = "On";
-      this.radioButton2.UseVisualStyleBackColor = true;
+      this.rbServoOn.AutoSize = true;
+      this.rbServoOn.Location = new System.Drawing.Point(931, 186);
+      this.rbServoOn.Name = "rbServoOn";
+      this.rbServoOn.Size = new System.Drawing.Size(39, 16);
+      this.rbServoOn.TabIndex = 15;
+      this.rbServoOn.TabStop = true;
+      this.rbServoOn.Text = "On";
+      this.rbServoOn.UseVisualStyleBackColor = true;
+      // 
+      // label10
+      // 
+      this.label10.AutoSize = true;
+      this.label10.Location = new System.Drawing.Point(801, 106);
+      this.label10.Name = "label10";
+      this.label10.Size = new System.Drawing.Size(57, 12);
+      this.label10.TabIndex = 16;
+      this.label10.Text = "엔코더 값";
+      // 
+      // tbEncoder
+      // 
+      this.tbEncoder.Location = new System.Drawing.Point(867, 101);
+      this.tbEncoder.Name = "tbEncoder";
+      this.tbEncoder.Size = new System.Drawing.Size(100, 21);
+      this.tbEncoder.TabIndex = 17;
+      this.tbEncoder.Text = "0";
+      // 
+      // btSpeedKpSet
+      // 
+      this.btSpeedKpSet.Location = new System.Drawing.Point(153, 20);
+      this.btSpeedKpSet.Name = "btSpeedKpSet";
+      this.btSpeedKpSet.Size = new System.Drawing.Size(38, 23);
+      this.btSpeedKpSet.TabIndex = 18;
+      this.btSpeedKpSet.Text = "Set";
+      this.btSpeedKpSet.UseVisualStyleBackColor = true;
+      this.btSpeedKpSet.Click += new System.EventHandler(this.Click_SpeedKp);
+      // 
+      // btSpeedKiSet
+      // 
+      this.btSpeedKiSet.Location = new System.Drawing.Point(153, 47);
+      this.btSpeedKiSet.Name = "btSpeedKiSet";
+      this.btSpeedKiSet.Size = new System.Drawing.Size(38, 23);
+      this.btSpeedKiSet.TabIndex = 19;
+      this.btSpeedKiSet.Text = "Set";
+      this.btSpeedKiSet.UseVisualStyleBackColor = true;
+      this.btSpeedKiSet.Click += new System.EventHandler(this.Click_SpeedKi);
+      // 
+      // btCurrentKpSet
+      // 
+      this.btCurrentKpSet.Location = new System.Drawing.Point(153, 74);
+      this.btCurrentKpSet.Name = "btCurrentKpSet";
+      this.btCurrentKpSet.Size = new System.Drawing.Size(38, 23);
+      this.btCurrentKpSet.TabIndex = 20;
+      this.btCurrentKpSet.Text = "Set";
+      this.btCurrentKpSet.UseVisualStyleBackColor = true;
+      this.btCurrentKpSet.Click += new System.EventHandler(this.Click_CurrentKp);
+      // 
+      // btCurrentKiSet
+      // 
+      this.btCurrentKiSet.Location = new System.Drawing.Point(153, 100);
+      this.btCurrentKiSet.Name = "btCurrentKiSet";
+      this.btCurrentKiSet.Size = new System.Drawing.Size(38, 23);
+      this.btCurrentKiSet.TabIndex = 21;
+      this.btCurrentKiSet.Text = "Set";
+      this.btCurrentKiSet.UseVisualStyleBackColor = true;
+      this.btCurrentKiSet.Click += new System.EventHandler(this.Click_CurrentKi);
+      // 
+      // button1
+      // 
+      this.button1.Location = new System.Drawing.Point(931, 212);
+      this.button1.Name = "button1";
+      this.button1.Size = new System.Drawing.Size(38, 23);
+      this.button1.TabIndex = 22;
+      this.button1.Text = "Set";
+      this.button1.UseVisualStyleBackColor = true;
+      this.button1.Click += new System.EventHandler(this.Click_Command);
       // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(993, 415);
-      this.Controls.Add(this.radioButton2);
-      this.Controls.Add(this.radioButton1);
-      this.Controls.Add(this.label9);
       this.Controls.Add(this.button1);
-      this.Controls.Add(this.textBox6);
+      this.Controls.Add(this.label10);
+      this.Controls.Add(this.tbEncoder);
+      this.Controls.Add(this.rbServoOn);
+      this.Controls.Add(this.rbServoOff);
+      this.Controls.Add(this.label9);
+      this.Controls.Add(this.btServoOnOff);
+      this.Controls.Add(this.tbCommand);
       this.Controls.Add(this.label8);
       this.Controls.Add(this.label7);
-      this.Controls.Add(this.textBox5);
+      this.Controls.Add(this.tbServoError);
       this.Controls.Add(this.groupBox2);
       this.Controls.Add(this.groupBox1);
       this.Controls.Add(this.checkBox4);
@@ -397,6 +485,7 @@
       this.Controls.Add(this.formsPlot1);
       this.Name = "Form1";
       this.Text = "모터 테스트";
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
       this.Load += new System.EventHandler(this.Form1_Load);
       this.groupBox1.ResumeLayout(false);
       this.groupBox1.PerformLayout();
@@ -422,25 +511,32 @@
     private System.Windows.Forms.CheckBox checkBox3;
     private System.Windows.Forms.CheckBox checkBox4;
     private System.Windows.Forms.GroupBox groupBox1;
-    private System.Windows.Forms.CheckBox checkBox6;
-    private System.Windows.Forms.CheckBox checkBox5;
+    private System.Windows.Forms.CheckBox cbTorqueMode;
+    private System.Windows.Forms.CheckBox cbSpeedMode;
     private System.Windows.Forms.GroupBox groupBox2;
     private System.Windows.Forms.Label label6;
     private System.Windows.Forms.Label label5;
     private System.Windows.Forms.Label label4;
     private System.Windows.Forms.Label label3;
-    private System.Windows.Forms.TextBox textBox4;
-    private System.Windows.Forms.TextBox textBox3;
-    private System.Windows.Forms.TextBox textBox2;
-    private System.Windows.Forms.TextBox textBox1;
-    private System.Windows.Forms.TextBox textBox5;
+    private System.Windows.Forms.TextBox tbCurrentKi;
+    private System.Windows.Forms.TextBox tbCurrentKp;
+    private System.Windows.Forms.TextBox tbSpeedKi;
+    private System.Windows.Forms.TextBox tbSpeedKp;
+    private System.Windows.Forms.TextBox tbServoError;
     private System.Windows.Forms.Label label7;
     private System.Windows.Forms.Label label8;
-    private System.Windows.Forms.Button button1;
+    private System.Windows.Forms.Button btServoOnOff;
     private System.Windows.Forms.Label label9;
-    private System.Windows.Forms.TextBox textBox6;
-    private System.Windows.Forms.RadioButton radioButton1;
-    private System.Windows.Forms.RadioButton radioButton2;
+    private System.Windows.Forms.TextBox tbCommand;
+    private System.Windows.Forms.RadioButton rbServoOff;
+    private System.Windows.Forms.RadioButton rbServoOn;
+    private System.Windows.Forms.Label label10;
+    private System.Windows.Forms.TextBox tbEncoder;
+    private System.Windows.Forms.Button btCurrentKiSet;
+    private System.Windows.Forms.Button btCurrentKpSet;
+    private System.Windows.Forms.Button btSpeedKiSet;
+    private System.Windows.Forms.Button btSpeedKpSet;
+    private System.Windows.Forms.Button button1;
   }
 }
 

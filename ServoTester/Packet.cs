@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO.Ports;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ServoTester
 {
@@ -12,8 +14,10 @@ namespace ServoTester
   {
     Form1 form = null;
     SerialPort Port = null;
-    public const int _LengthLow = 2;
-    public const int _LengthHigh = 3;
+    const int _LengthLow = 2;
+    const int _LengthHigh = 3;
+    const ushort SERIAL_BUF_SIZE = 128 * 16;
+    byte[] SendDataPacket = new byte[SERIAL_BUF_SIZE];
 
     [StructLayout(LayoutKind.Explicit)]
     struct TestUnion
@@ -35,7 +39,142 @@ namespace ServoTester
     public _Packet(Form1 _form)
     {
       form = _form;
-      Port = form.Comm.Port;
+      Port = form.Port;
+    }
+
+    public void MakeAndSendData(byte Command, ushort StartAddress, int Data)
+    {
+      ushort u16PtrCnt = 0;
+      ushort calc_crc = 0;
+      switch (Command)
+      {
+        case 1:
+          if (StartAddress == 1 // 모드 설정
+            || StartAddress == 2 // servo On/Off
+            || StartAddress == 3)// 속도/토크 명령 RPM/%
+          {
+            MakePacket(Command, StartAddress, Data, ref SendDataPacket);
+            u16PtrCnt = CmdAck.u16PtrCnt;
+            calc_crc = GetCRC(SendDataPacket, u16PtrCnt + 2);
+            SendDataPacket[u16PtrCnt++] = (byte)(calc_crc >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(calc_crc >> 8);
+            SendPacket(SendDataPacket, u16PtrCnt);
+          }
+          else
+            MessageBox.Show("Cammand 1 에러.");
+          break;
+        case 2://게인
+          if (StartAddress == 1 // 속도 Kp
+            || StartAddress == 2 // 속도 Ki
+            || StartAddress == 3 // 전류 Kp
+            || StartAddress == 4)// 전류 Ki
+          {
+            MakePacket(Command, StartAddress, Data, ref SendDataPacket);
+            u16PtrCnt = CmdAck.u16PtrCnt;
+            calc_crc = GetCRC(SendDataPacket, u16PtrCnt + 2);
+            SendDataPacket[u16PtrCnt++] = (byte)(calc_crc >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(calc_crc >> 8);
+            SendPacket(SendDataPacket, u16PtrCnt);
+          }
+          else
+            MessageBox.Show("Cammand 2 에러.");
+          break;
+        //case 3: // 주기적인 Servo On/Off, 에러, 엔코더
+        //  break;
+        //case 4: // praph
+        //  break;
+        default:
+          MessageBox.Show("Cammand 에러.");
+          break;
+      }
+    }
+
+    public void MakePacket(byte Command, ushort StartAddress, int Data, ref byte[] SendDataPacket)
+    {
+      ushort u16PtrCnt = 0;
+      ushort Revision = 0;
+      byte TryNum = 0;
+
+      SendDataPacket[u16PtrCnt++] = (byte)0x5A;               // Start low            0
+      SendDataPacket[u16PtrCnt++] = (byte)0xA5;               // Start high           1
+      SendDataPacket[u16PtrCnt++] = (byte)0;                  // Length low           2
+      SendDataPacket[u16PtrCnt++] = (byte)0;                  // Length high          3
+      SendDataPacket[u16PtrCnt++] = Command;                  // Function code        4
+      SendDataPacket[u16PtrCnt++] = (byte)(Revision >> 0);    // revision low         5
+      SendDataPacket[u16PtrCnt++] = (byte)(Revision >> 8);    // revision high        6
+      SendDataPacket[u16PtrCnt++] = TryNum;                   // TryNum               7
+      SendDataPacket[u16PtrCnt++] = (byte)(StartAddress >> 0);// Start Address low    8
+      SendDataPacket[u16PtrCnt++] = (byte)(StartAddress >> 8);// Start Address high   9
+
+      if (Command == 1)
+      {
+        switch (StartAddress)
+        {
+          case 1:// 모드설정 1:속도, 0:토크
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)0;
+            SendDataPacket[u16PtrCnt++] = (byte)0;
+            SendDataPacket[u16PtrCnt++] = (byte)0;
+            break;
+          case 2:// Servo On/Off
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)0;
+            SendDataPacket[u16PtrCnt++] = (byte)0;
+            SendDataPacket[u16PtrCnt++] = (byte)0;
+            break;
+          case 3:// 속도/토크 명령 RPM/%
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 8);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 16);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
+            break;
+          default:
+            break;
+        }
+      }
+      else if (Command == 2)
+      {
+        switch (StartAddress)
+        {
+          case 1:// 속도 Kp
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 8);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 16);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
+            break;
+          case 2:// 속도 Ki
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 8);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 16);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
+            break;
+          case 3:// 전류 Kp
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 8);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 16);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
+            break;
+          case 4:// 전류 Ki
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 8);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 16);
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
+            break;
+          default:
+            break;
+        }
+      }
+      //else if (Command == 3)// 주기적인 servo on/off 상태, 엔코더 위치
+      //else if (Command == 4)// 그래프 데이터
+
+      ushort Length = (ushort)(u16PtrCnt - 4);
+      SendDataPacket[_LengthLow] = (byte)(Length >> 0);     // Length low
+      SendDataPacket[_LengthHigh] = (byte)(Length >> 8);    // Length high
+
+      CmdAck.u8Command = Command;
+      CmdAck.u16PtrCnt = u16PtrCnt;
+      CmdAck.u16StartAddress = StartAddress;
+      CmdAck.u8AckWait = 1;
     }
 
     public void ResetAckState()
@@ -52,33 +191,32 @@ namespace ServoTester
       ushort u16PtrCnt = 0, calc_crc;
       byte[] DataPacket = new byte[20];
 
-      DataPacket[u16PtrCnt++] = 0x5A;    // Start low
-      DataPacket[u16PtrCnt++] = 0xA5;     // Start high
-      DataPacket[u16PtrCnt++] = 0;              // Length low
+      DataPacket[u16PtrCnt++] = 0x5A;         // Start low
+      DataPacket[u16PtrCnt++] = 0xA5;         // Start high
+      DataPacket[u16PtrCnt++] = 0;            // Length low
       DataPacket[u16PtrCnt++] = 0;            // Length high
       if (code != 0)
-        DataPacket[u16PtrCnt++] = (byte)(0x80 | command);         // Function code
+        DataPacket[u16PtrCnt++] = (byte)(0x80 | command); // Function code
       else
-        DataPacket[u16PtrCnt++] = command;        // Function code
+        DataPacket[u16PtrCnt++] = command;    // Function code
       DataPacket[u16PtrCnt++] = 0;            // revision low, 1byte
       DataPacket[u16PtrCnt++] = 0;            // revision high, 1byte
-      DataPacket[u16PtrCnt++] = Try_num; // u8LcdMcComReadBuffer[7];		  // Try num.
+      DataPacket[u16PtrCnt++] = Try_num;      // Try num.
       DataPacket[u16PtrCnt++] = (byte)(StartAddress);     // Start Address low
-      DataPacket[u16PtrCnt++] = (byte)(StartAddress >> 8);      // Start Address high
-      DataPacket[u16PtrCnt++] = code;     // return ack code
+      DataPacket[u16PtrCnt++] = (byte)(StartAddress >> 8);// Start Address high
+      DataPacket[u16PtrCnt++] = code;         // return ack code
       DataPacket[u16PtrCnt++] = 0;            // 
       DataPacket[u16PtrCnt++] = 0;            // reserved
       DataPacket[u16PtrCnt++] = 0;            // reserved
 
       ushort Length = (ushort)(u16PtrCnt - 4);
       DataPacket[_LengthLow] = (byte)(Length);      // Length low
-      DataPacket[_LengthHigh] = (byte)(Length >> 8);    // Length high
+      DataPacket[_LengthHigh] = (byte)(Length >> 8);// Length high
 
       calc_crc = GetCRC(DataPacket, u16PtrCnt + 2);
       DataPacket[u16PtrCnt++] = (byte)(calc_crc & 0xff);
       DataPacket[u16PtrCnt++] = (byte)((calc_crc >> 8) & 0xff);
 
-      // SerialPuts_Pc((uint16_t)u16PtrCnt, (uint8_t*)DataPacket);
       SendPacket(DataPacket, u16PtrCnt);
     }
 
