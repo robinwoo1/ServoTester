@@ -89,6 +89,7 @@ namespace ServoTester
         sig1.LegendText = "CommandSpeed";
       }
 
+      //
       if (CheckGraphCommandCurrent)
       {
         var sig1 = formsPlot.Plot.Add.ScatterLine(Graph_time, Graph_ch2);
