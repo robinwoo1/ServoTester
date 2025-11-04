@@ -49,9 +49,10 @@ namespace ServoTester
       switch (Command)
       {
         case 1:
-          if (StartAddress == 1 // 모드 설정
-            || StartAddress == 2 // servo On/Off
-            || StartAddress == 3)// 속도/토크 명령 RPM/%
+          if (StartAddress == 1 // 모드설정 1:속도, 0:토크
+            || StartAddress == 2 // Servo 1:On, 0:Off
+            || StartAddress == 3 // 0:속도(RPM), 1:토크(%)
+            || StartAddress == 4)// 에러 클리어
           {
             MakePacket(Command, StartAddress, Data, ref SendDataPacket);
             u16PtrCnt = CmdAck.u16PtrCnt;
@@ -116,17 +117,23 @@ namespace ServoTester
             SendDataPacket[u16PtrCnt++] = (byte)0;
             SendDataPacket[u16PtrCnt++] = (byte)0;
             break;
-          case 2:// Servo On/Off
+          case 2:// Servo 1:On, 0:Off
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
             SendDataPacket[u16PtrCnt++] = (byte)0;
             SendDataPacket[u16PtrCnt++] = (byte)0;
             SendDataPacket[u16PtrCnt++] = (byte)0;
             break;
-          case 3:// 속도/토크 명령 RPM/%
+          case 3:// 0:속도(RPM), 1:토크(%)
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 8);
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 16);
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
+            break;
+          case 4:// 에러 클리어
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = 0;
+            SendDataPacket[u16PtrCnt++] = 0;
+            SendDataPacket[u16PtrCnt++] = 0;
             break;
           default:
             break;

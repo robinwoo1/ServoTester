@@ -37,14 +37,19 @@
       this.label2 = new System.Windows.Forms.Label();
       this.cbBaudrate = new System.Windows.Forms.ComboBox();
       this.workTimer = new System.Windows.Forms.Timer(this.components);
-      this.checkBox1 = new System.Windows.Forms.CheckBox();
-      this.checkBox2 = new System.Windows.Forms.CheckBox();
-      this.checkBox3 = new System.Windows.Forms.CheckBox();
-      this.checkBox4 = new System.Windows.Forms.CheckBox();
+      this.cbGraphCommandSpeed = new System.Windows.Forms.CheckBox();
+      this.cbGraphCommandCurrent = new System.Windows.Forms.CheckBox();
+      this.cbGraphFeedSpeed = new System.Windows.Forms.CheckBox();
+      this.cbGraphFeedCurrent = new System.Windows.Forms.CheckBox();
       this.groupBox1 = new System.Windows.Forms.GroupBox();
-      this.cbTorqueMode = new System.Windows.Forms.CheckBox();
-      this.cbSpeedMode = new System.Windows.Forms.CheckBox();
+      this.rbTorqueMode = new System.Windows.Forms.RadioButton();
+      this.btSpeedTorque = new System.Windows.Forms.Button();
+      this.rbSpeedMode = new System.Windows.Forms.RadioButton();
       this.groupBox2 = new System.Windows.Forms.GroupBox();
+      this.btCurrentKiSet = new System.Windows.Forms.Button();
+      this.btCurrentKpSet = new System.Windows.Forms.Button();
+      this.btSpeedKiSet = new System.Windows.Forms.Button();
+      this.btSpeedKpSet = new System.Windows.Forms.Button();
       this.label6 = new System.Windows.Forms.Label();
       this.label5 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
@@ -63,11 +68,8 @@
       this.rbServoOn = new System.Windows.Forms.RadioButton();
       this.label10 = new System.Windows.Forms.Label();
       this.tbEncoder = new System.Windows.Forms.TextBox();
-      this.btSpeedKpSet = new System.Windows.Forms.Button();
-      this.btSpeedKiSet = new System.Windows.Forms.Button();
-      this.btCurrentKpSet = new System.Windows.Forms.Button();
-      this.btCurrentKiSet = new System.Windows.Forms.Button();
-      this.button1 = new System.Windows.Forms.Button();
+      this.btSetCommand = new System.Windows.Forms.Button();
+      this.btErrorClear = new System.Windows.Forms.Button();
       this.groupBox1.SuspendLayout();
       this.groupBox2.SuspendLayout();
       this.SuspendLayout();
@@ -152,77 +154,89 @@
       this.workTimer.Interval = 50;
       this.workTimer.Tick += new System.EventHandler(this.workTimer_Tick);
       // 
-      // checkBox1
+      // cbGraphCommandSpeed
       // 
-      this.checkBox1.AutoSize = true;
-      this.checkBox1.Location = new System.Drawing.Point(7, 47);
-      this.checkBox1.Name = "checkBox1";
-      this.checkBox1.Size = new System.Drawing.Size(76, 16);
-      this.checkBox1.TabIndex = 6;
-      this.checkBox1.Text = "명령 속도";
-      this.checkBox1.UseVisualStyleBackColor = true;
+      this.cbGraphCommandSpeed.AutoSize = true;
+      this.cbGraphCommandSpeed.Location = new System.Drawing.Point(7, 47);
+      this.cbGraphCommandSpeed.Name = "cbGraphCommandSpeed";
+      this.cbGraphCommandSpeed.Size = new System.Drawing.Size(76, 16);
+      this.cbGraphCommandSpeed.TabIndex = 6;
+      this.cbGraphCommandSpeed.Text = "명령 속도";
+      this.cbGraphCommandSpeed.UseVisualStyleBackColor = true;
       // 
-      // checkBox2
+      // cbGraphCommandCurrent
       // 
-      this.checkBox2.AutoSize = true;
-      this.checkBox2.Location = new System.Drawing.Point(7, 69);
-      this.checkBox2.Name = "checkBox2";
-      this.checkBox2.Size = new System.Drawing.Size(76, 16);
-      this.checkBox2.TabIndex = 7;
-      this.checkBox2.Text = "명령 전류";
-      this.checkBox2.UseVisualStyleBackColor = true;
+      this.cbGraphCommandCurrent.AutoSize = true;
+      this.cbGraphCommandCurrent.Location = new System.Drawing.Point(7, 69);
+      this.cbGraphCommandCurrent.Name = "cbGraphCommandCurrent";
+      this.cbGraphCommandCurrent.Size = new System.Drawing.Size(76, 16);
+      this.cbGraphCommandCurrent.TabIndex = 7;
+      this.cbGraphCommandCurrent.Text = "명령 전류";
+      this.cbGraphCommandCurrent.UseVisualStyleBackColor = true;
       // 
-      // checkBox3
+      // cbGraphFeedSpeed
       // 
-      this.checkBox3.AutoSize = true;
-      this.checkBox3.Location = new System.Drawing.Point(7, 91);
-      this.checkBox3.Name = "checkBox3";
-      this.checkBox3.Size = new System.Drawing.Size(76, 16);
-      this.checkBox3.TabIndex = 8;
-      this.checkBox3.Text = "현재 속도";
-      this.checkBox3.UseVisualStyleBackColor = true;
+      this.cbGraphFeedSpeed.AutoSize = true;
+      this.cbGraphFeedSpeed.Location = new System.Drawing.Point(7, 91);
+      this.cbGraphFeedSpeed.Name = "cbGraphFeedSpeed";
+      this.cbGraphFeedSpeed.Size = new System.Drawing.Size(76, 16);
+      this.cbGraphFeedSpeed.TabIndex = 8;
+      this.cbGraphFeedSpeed.Text = "현재 속도";
+      this.cbGraphFeedSpeed.UseVisualStyleBackColor = true;
       // 
-      // checkBox4
+      // cbGraphFeedCurrent
       // 
-      this.checkBox4.AutoSize = true;
-      this.checkBox4.Location = new System.Drawing.Point(7, 113);
-      this.checkBox4.Name = "checkBox4";
-      this.checkBox4.Size = new System.Drawing.Size(76, 16);
-      this.checkBox4.TabIndex = 9;
-      this.checkBox4.Text = "현재 전류";
-      this.checkBox4.UseVisualStyleBackColor = true;
+      this.cbGraphFeedCurrent.AutoSize = true;
+      this.cbGraphFeedCurrent.Location = new System.Drawing.Point(7, 113);
+      this.cbGraphFeedCurrent.Name = "cbGraphFeedCurrent";
+      this.cbGraphFeedCurrent.Size = new System.Drawing.Size(76, 16);
+      this.cbGraphFeedCurrent.TabIndex = 9;
+      this.cbGraphFeedCurrent.Text = "현재 전류";
+      this.cbGraphFeedCurrent.UseVisualStyleBackColor = true;
       // 
       // groupBox1
       // 
-      this.groupBox1.Controls.Add(this.cbTorqueMode);
-      this.groupBox1.Controls.Add(this.cbSpeedMode);
+      this.groupBox1.Controls.Add(this.rbTorqueMode);
+      this.groupBox1.Controls.Add(this.btSpeedTorque);
+      this.groupBox1.Controls.Add(this.rbSpeedMode);
       this.groupBox1.Location = new System.Drawing.Point(778, 128);
       this.groupBox1.Name = "groupBox1";
-      this.groupBox1.Size = new System.Drawing.Size(200, 47);
+      this.groupBox1.Size = new System.Drawing.Size(204, 47);
       this.groupBox1.TabIndex = 10;
       this.groupBox1.TabStop = false;
       this.groupBox1.Text = "모드 설정";
       // 
-      // cbTorqueMode
+      // rbTorqueMode
       // 
-      this.cbTorqueMode.AutoSize = true;
-      this.cbTorqueMode.Location = new System.Drawing.Point(111, 20);
-      this.cbTorqueMode.Name = "cbTorqueMode";
-      this.cbTorqueMode.Size = new System.Drawing.Size(72, 16);
-      this.cbTorqueMode.TabIndex = 12;
-      this.cbTorqueMode.Text = "토크모드";
-      this.cbTorqueMode.UseVisualStyleBackColor = true;
+      this.rbTorqueMode.AutoSize = true;
+      this.rbTorqueMode.Location = new System.Drawing.Point(153, 21);
+      this.rbTorqueMode.Name = "rbTorqueMode";
+      this.rbTorqueMode.Size = new System.Drawing.Size(47, 16);
+      this.rbTorqueMode.TabIndex = 25;
+      this.rbTorqueMode.TabStop = true;
+      this.rbTorqueMode.Text = "토크";
+      this.rbTorqueMode.UseVisualStyleBackColor = true;
       // 
-      // cbSpeedMode
+      // btSpeedTorque
       // 
-      this.cbSpeedMode.AutoSize = true;
-      this.cbSpeedMode.ForeColor = System.Drawing.SystemColors.ControlText;
-      this.cbSpeedMode.Location = new System.Drawing.Point(19, 20);
-      this.cbSpeedMode.Name = "cbSpeedMode";
-      this.cbSpeedMode.Size = new System.Drawing.Size(72, 16);
-      this.cbSpeedMode.TabIndex = 11;
-      this.cbSpeedMode.Text = "속도모드";
-      this.cbSpeedMode.UseVisualStyleBackColor = true;
+      this.btSpeedTorque.Location = new System.Drawing.Point(8, 16);
+      this.btSpeedTorque.Name = "btSpeedTorque";
+      this.btSpeedTorque.Size = new System.Drawing.Size(89, 23);
+      this.btSpeedTorque.TabIndex = 23;
+      this.btSpeedTorque.Text = "토크 모드";
+      this.btSpeedTorque.UseVisualStyleBackColor = true;
+      this.btSpeedTorque.Click += new System.EventHandler(this.Click_SpeedTorqueMode);
+      // 
+      // rbSpeedMode
+      // 
+      this.rbSpeedMode.AutoSize = true;
+      this.rbSpeedMode.Location = new System.Drawing.Point(104, 21);
+      this.rbSpeedMode.Name = "rbSpeedMode";
+      this.rbSpeedMode.Size = new System.Drawing.Size(47, 16);
+      this.rbSpeedMode.TabIndex = 24;
+      this.rbSpeedMode.TabStop = true;
+      this.rbSpeedMode.Text = "속도";
+      this.rbSpeedMode.UseVisualStyleBackColor = true;
       // 
       // groupBox2
       // 
@@ -244,6 +258,46 @@
       this.groupBox2.TabIndex = 11;
       this.groupBox2.TabStop = false;
       this.groupBox2.Text = "게인 설정";
+      // 
+      // btCurrentKiSet
+      // 
+      this.btCurrentKiSet.Location = new System.Drawing.Point(153, 100);
+      this.btCurrentKiSet.Name = "btCurrentKiSet";
+      this.btCurrentKiSet.Size = new System.Drawing.Size(38, 23);
+      this.btCurrentKiSet.TabIndex = 21;
+      this.btCurrentKiSet.Text = "Set";
+      this.btCurrentKiSet.UseVisualStyleBackColor = true;
+      this.btCurrentKiSet.Click += new System.EventHandler(this.Click_CurrentKi);
+      // 
+      // btCurrentKpSet
+      // 
+      this.btCurrentKpSet.Location = new System.Drawing.Point(153, 74);
+      this.btCurrentKpSet.Name = "btCurrentKpSet";
+      this.btCurrentKpSet.Size = new System.Drawing.Size(38, 23);
+      this.btCurrentKpSet.TabIndex = 20;
+      this.btCurrentKpSet.Text = "Set";
+      this.btCurrentKpSet.UseVisualStyleBackColor = true;
+      this.btCurrentKpSet.Click += new System.EventHandler(this.Click_CurrentKp);
+      // 
+      // btSpeedKiSet
+      // 
+      this.btSpeedKiSet.Location = new System.Drawing.Point(153, 47);
+      this.btSpeedKiSet.Name = "btSpeedKiSet";
+      this.btSpeedKiSet.Size = new System.Drawing.Size(38, 23);
+      this.btSpeedKiSet.TabIndex = 19;
+      this.btSpeedKiSet.Text = "Set";
+      this.btSpeedKiSet.UseVisualStyleBackColor = true;
+      this.btSpeedKiSet.Click += new System.EventHandler(this.Click_SpeedKi);
+      // 
+      // btSpeedKpSet
+      // 
+      this.btSpeedKpSet.Location = new System.Drawing.Point(153, 20);
+      this.btSpeedKpSet.Name = "btSpeedKpSet";
+      this.btSpeedKpSet.Size = new System.Drawing.Size(38, 23);
+      this.btSpeedKpSet.TabIndex = 18;
+      this.btSpeedKpSet.Text = "Set";
+      this.btSpeedKpSet.UseVisualStyleBackColor = true;
+      this.btSpeedKpSet.Click += new System.EventHandler(this.Click_SpeedKp);
       // 
       // label6
       // 
@@ -317,7 +371,7 @@
       // 
       this.tbServoError.Location = new System.Drawing.Point(867, 74);
       this.tbServoError.Name = "tbServoError";
-      this.tbServoError.Size = new System.Drawing.Size(100, 21);
+      this.tbServoError.Size = new System.Drawing.Size(57, 21);
       this.tbServoError.TabIndex = 8;
       this.tbServoError.Text = "0";
       // 
@@ -347,6 +401,7 @@
       this.btServoOnOff.TabIndex = 13;
       this.btServoOnOff.Text = "Servo On";
       this.btServoOnOff.UseVisualStyleBackColor = true;
+      this.btServoOnOff.Click += new System.EventHandler(this.Click_ServoOnOff);
       // 
       // label9
       // 
@@ -368,7 +423,7 @@
       // rbServoOff
       // 
       this.rbServoOff.AutoSize = true;
-      this.rbServoOff.Location = new System.Drawing.Point(886, 186);
+      this.rbServoOff.Location = new System.Drawing.Point(882, 186);
       this.rbServoOff.Name = "rbServoOff";
       this.rbServoOff.Size = new System.Drawing.Size(38, 16);
       this.rbServoOff.TabIndex = 14;
@@ -400,66 +455,37 @@
       // 
       this.tbEncoder.Location = new System.Drawing.Point(867, 101);
       this.tbEncoder.Name = "tbEncoder";
-      this.tbEncoder.Size = new System.Drawing.Size(100, 21);
+      this.tbEncoder.Size = new System.Drawing.Size(58, 21);
       this.tbEncoder.TabIndex = 17;
       this.tbEncoder.Text = "0";
       // 
-      // btSpeedKpSet
+      // btSetCommand
       // 
-      this.btSpeedKpSet.Location = new System.Drawing.Point(153, 20);
-      this.btSpeedKpSet.Name = "btSpeedKpSet";
-      this.btSpeedKpSet.Size = new System.Drawing.Size(38, 23);
-      this.btSpeedKpSet.TabIndex = 18;
-      this.btSpeedKpSet.Text = "Set";
-      this.btSpeedKpSet.UseVisualStyleBackColor = true;
-      this.btSpeedKpSet.Click += new System.EventHandler(this.Click_SpeedKp);
+      this.btSetCommand.Location = new System.Drawing.Point(931, 212);
+      this.btSetCommand.Name = "btSetCommand";
+      this.btSetCommand.Size = new System.Drawing.Size(38, 23);
+      this.btSetCommand.TabIndex = 22;
+      this.btSetCommand.Text = "Set";
+      this.btSetCommand.UseVisualStyleBackColor = true;
+      this.btSetCommand.Click += new System.EventHandler(this.Click_SetCommand);
       // 
-      // btSpeedKiSet
+      // btErrorClear
       // 
-      this.btSpeedKiSet.Location = new System.Drawing.Point(153, 47);
-      this.btSpeedKiSet.Name = "btSpeedKiSet";
-      this.btSpeedKiSet.Size = new System.Drawing.Size(38, 23);
-      this.btSpeedKiSet.TabIndex = 19;
-      this.btSpeedKiSet.Text = "Set";
-      this.btSpeedKiSet.UseVisualStyleBackColor = true;
-      this.btSpeedKiSet.Click += new System.EventHandler(this.Click_SpeedKi);
-      // 
-      // btCurrentKpSet
-      // 
-      this.btCurrentKpSet.Location = new System.Drawing.Point(153, 74);
-      this.btCurrentKpSet.Name = "btCurrentKpSet";
-      this.btCurrentKpSet.Size = new System.Drawing.Size(38, 23);
-      this.btCurrentKpSet.TabIndex = 20;
-      this.btCurrentKpSet.Text = "Set";
-      this.btCurrentKpSet.UseVisualStyleBackColor = true;
-      this.btCurrentKpSet.Click += new System.EventHandler(this.Click_CurrentKp);
-      // 
-      // btCurrentKiSet
-      // 
-      this.btCurrentKiSet.Location = new System.Drawing.Point(153, 100);
-      this.btCurrentKiSet.Name = "btCurrentKiSet";
-      this.btCurrentKiSet.Size = new System.Drawing.Size(38, 23);
-      this.btCurrentKiSet.TabIndex = 21;
-      this.btCurrentKiSet.Text = "Set";
-      this.btCurrentKiSet.UseVisualStyleBackColor = true;
-      this.btCurrentKiSet.Click += new System.EventHandler(this.Click_CurrentKi);
-      // 
-      // button1
-      // 
-      this.button1.Location = new System.Drawing.Point(931, 212);
-      this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(38, 23);
-      this.button1.TabIndex = 22;
-      this.button1.Text = "Set";
-      this.button1.UseVisualStyleBackColor = true;
-      this.button1.Click += new System.EventHandler(this.Click_Command);
+      this.btErrorClear.Location = new System.Drawing.Point(930, 73);
+      this.btErrorClear.Name = "btErrorClear";
+      this.btErrorClear.Size = new System.Drawing.Size(48, 23);
+      this.btErrorClear.TabIndex = 23;
+      this.btErrorClear.Text = "Clear";
+      this.btErrorClear.UseVisualStyleBackColor = true;
+      this.btErrorClear.Click += new System.EventHandler(this.Click_ErrorClear);
       // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(993, 415);
-      this.Controls.Add(this.button1);
+      this.Controls.Add(this.btErrorClear);
+      this.Controls.Add(this.btSetCommand);
       this.Controls.Add(this.label10);
       this.Controls.Add(this.tbEncoder);
       this.Controls.Add(this.rbServoOn);
@@ -472,10 +498,10 @@
       this.Controls.Add(this.tbServoError);
       this.Controls.Add(this.groupBox2);
       this.Controls.Add(this.groupBox1);
-      this.Controls.Add(this.checkBox4);
-      this.Controls.Add(this.checkBox3);
-      this.Controls.Add(this.checkBox2);
-      this.Controls.Add(this.checkBox1);
+      this.Controls.Add(this.cbGraphFeedCurrent);
+      this.Controls.Add(this.cbGraphFeedSpeed);
+      this.Controls.Add(this.cbGraphCommandCurrent);
+      this.Controls.Add(this.cbGraphCommandSpeed);
       this.Controls.Add(this.btCommOpen);
       this.Controls.Add(this.label2);
       this.Controls.Add(this.cbBaudrate);
@@ -506,13 +532,11 @@
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.ComboBox cbBaudrate;
     private System.Windows.Forms.Timer workTimer;
-    private System.Windows.Forms.CheckBox checkBox1;
-    private System.Windows.Forms.CheckBox checkBox2;
-    private System.Windows.Forms.CheckBox checkBox3;
-    private System.Windows.Forms.CheckBox checkBox4;
+    private System.Windows.Forms.CheckBox cbGraphCommandSpeed;
+    private System.Windows.Forms.CheckBox cbGraphCommandCurrent;
+    private System.Windows.Forms.CheckBox cbGraphFeedSpeed;
+    private System.Windows.Forms.CheckBox cbGraphFeedCurrent;
     private System.Windows.Forms.GroupBox groupBox1;
-    private System.Windows.Forms.CheckBox cbTorqueMode;
-    private System.Windows.Forms.CheckBox cbSpeedMode;
     private System.Windows.Forms.GroupBox groupBox2;
     private System.Windows.Forms.Label label6;
     private System.Windows.Forms.Label label5;
@@ -536,7 +560,11 @@
     private System.Windows.Forms.Button btCurrentKpSet;
     private System.Windows.Forms.Button btSpeedKiSet;
     private System.Windows.Forms.Button btSpeedKpSet;
-    private System.Windows.Forms.Button button1;
+    private System.Windows.Forms.Button btSetCommand;
+    private System.Windows.Forms.RadioButton rbTorqueMode;
+    private System.Windows.Forms.Button btSpeedTorque;
+    private System.Windows.Forms.RadioButton rbSpeedMode;
+    private System.Windows.Forms.Button btErrorClear;
   }
 }
 

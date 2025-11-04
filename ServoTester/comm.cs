@@ -28,6 +28,17 @@ namespace ServoTester
     public int ComReadIndex = 0;
     public ConcurrentQueue<byte> cq = new ConcurrentQueue<byte>();
     public bool port_working = false;
+    public bool GraphUpdate = false;
+
+    public List<double> Data_ch1 = new List<double>();
+    public List<double> Data_ch2 = new List<double>();
+    public List<double> Data_ch3 = new List<double>();
+    public List<double> Data_ch4 = new List<double>();
+
+    public List<double> Graph_ch1 = new List<double>();
+    public List<double> Graph_ch2 = new List<double>();
+    public List<double> Graph_ch3 = new List<double>();
+    public List<double> Graph_ch4 = new List<double>();
 
     [StructLayout(LayoutKind.Explicit)]
     struct TestUnion
@@ -64,6 +75,7 @@ namespace ServoTester
       Port.Open();
       // event 함수 설정
       Port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+      //clear_data();
     }
 
     public void Close()
@@ -123,6 +135,19 @@ namespace ServoTester
       return CRCFull;
     }
 
+    public void clear_data()
+    {
+      Data_ch1.Clear();
+      Data_ch2.Clear();
+      Data_ch3.Clear();
+      Data_ch4.Clear();
+
+      Graph_ch1.Clear();
+      Graph_ch2.Clear();
+      Graph_ch3.Clear();
+      Graph_ch4.Clear();
+    }
+
     public void ProcessPcMcReceivedCommData()//ref _Parameter Mc)
     {
       byte data;
@@ -161,8 +186,8 @@ namespace ServoTester
                 case 1: // 명령
                   if (StartAddress == 1   // 모드설정
                     || StartAddress == 2  // Servo On/Off
-                    || StartAddress == 3  // 속도 명령 RPM
-                    || StartAddress == 4) // 토크 명령 %
+                    || StartAddress == 3  // 속도 명령 RPM / 토크 명령 %
+                    || StartAddress == 4) // 에러 Clear
                   {
                     Packet.ResetAckState();
                   }
@@ -184,7 +209,7 @@ namespace ServoTester
                     MessageBox.Show("Cammand 2 에러.");
                   }
                   break;
-                case 3: // 상태
+                case 3: // 일정 시간마다 상태 업데이트
                   if (ComReadBuffer[10] == 0)
                     ServoOnOff = false; // Off
                   else
@@ -202,8 +227,49 @@ namespace ServoTester
                   Encoder = (int)(ComReadBuffer[19] << 8);
                   Encoder = (int)(ComReadBuffer[20] << 16);
                   Encoder = (int)(ComReadBuffer[21] << 24);
+                  //Packet.AckSend(Command, Try_num, StartAddress, 0);
                   break;
                 case 4: // graph
+                  d.b0 = ComReadBuffer[10 + 0];
+                  d.b1 = ComReadBuffer[10 + 1];
+                  d.b2 = ComReadBuffer[10 + 2];
+                  d.b3 = ComReadBuffer[10 + 3];
+                  float current_gain = d.f;
+                  
+                  d.b0 = ComReadBuffer[14 + 0];
+                  d.b1 = ComReadBuffer[15 + 1];
+                  d.b2 = ComReadBuffer[16 + 2];
+                  d.b3 = ComReadBuffer[17 + 3];
+                  float speed_gain = d.f;
+
+                  d.b0 = ComReadBuffer[18];
+                  d.b1 = ComReadBuffer[19];
+                  ushort Graph_Data_Length = d.us0;
+                  if (Graph_Data_Length > 0 )
+                  {
+                    for (ushort j = 0; j < Graph_Data_Length; j++)
+                    {
+                      d.b0 = ComReadBuffer[100 * 0 + 20 + j * 2 + 0];
+                      d.b1 = ComReadBuffer[100 * 0 + 20 + j * 2 + 1];
+                      Data_ch1.Add(d.s0 * speed_gain);// Command Speed
+                      d.b0 = ComReadBuffer[100 * 1 + 20 + j * 2 + 0];
+                      d.b1 = ComReadBuffer[100 * 1 + 30 + j * 2 + 1];
+                      Data_ch2.Add(d.s0 * current_gain);//Command current
+                      d.b0 = ComReadBuffer[100 * 2 + 20 + j * 2 + 0];
+                      d.b1 = ComReadBuffer[100 * 2 + 20 + j * 2 + 1];
+                      Data_ch3.Add(d.s0 * speed_gain); //Feed Speed
+                      d.b0 = ComReadBuffer[100 * 3 + 20 + j * 2 + 0];
+                      d.b1 = ComReadBuffer[100 * 3 + 20 + j * 2 + 1];
+                      Data_ch4.Add(d.s0 * current_gain); //Feed Current
+                    }
+                    Graph_ch1.AddRange(Data_ch1);
+                    Graph_ch2.AddRange(Data_ch2);
+                    Graph_ch3.AddRange(Data_ch3);
+                    Graph_ch4.AddRange(Data_ch4);
+                    GraphUpdate = true;
+                  }
+                  
+                  Packet.AckSend(Command, Try_num, StartAddress, 0);
                   break;
                 default:
                   MessageBox.Show("알 수 없는 Cammand 에러.");
