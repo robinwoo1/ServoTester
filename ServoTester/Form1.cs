@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static ServoTester._Packet;
 
 namespace ServoTester
 {
@@ -22,9 +23,6 @@ namespace ServoTester
     public _comm Comm = null;
     public _Packet Packet = null;
     public ScottPlot.WinForms.FormsPlot formsPlot = null;
-    
-    
-    public SerialPort Port { get; } = new SerialPort();
     public _Graph Graph = null;
 
     Thread myThread = null;
@@ -54,10 +52,10 @@ namespace ServoTester
     {
       InitializeComponent();
 
-      formsPlot = formsPlot1;
-      Packet = new _Packet(this);
-      Comm = new _comm(this);
-      Graph = new _Graph(this);
+      this.formsPlot = formsPlot1;
+      this.Packet = new _Packet(this);
+      this.Comm = new _comm(this);
+      this.Graph = new _Graph(this);
 
       // 통신포트목록을 만든다.
       PortRefresh();
@@ -74,7 +72,7 @@ namespace ServoTester
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
-      if (Port.IsOpen)
+      if (Comm.Port.IsOpen)
       {
         // 통신 포트 닫기
         Comm.Close();
@@ -110,7 +108,7 @@ namespace ServoTester
     private void btCommOpen_Click(object sender, EventArgs e)
     {
       // 통신을 개시할지 닫을지 선택한다.
-      switch (Port.IsOpen)
+      switch (Comm.Port.IsOpen)
       {
         case false when btCommOpen.Text == @"Open":
           // 포트번호와 보드레이트 정보를 가져온다.
@@ -124,6 +122,9 @@ namespace ServoTester
           {
             // 통신 시작
             Comm.Open(port, baudrate);
+            // event 함수 설정
+            Comm.Port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
             Comm.clear_data();
             // timer 시작
             workTimer.Start();
@@ -132,6 +133,8 @@ namespace ServoTester
             myThread_flag = true;
             myThread = new Thread(myFunc);
             myThread.Start();
+
+            Packet.MakeAndSendData(1, 5, 1);
           }
           catch (Exception ex)
           {
@@ -145,6 +148,7 @@ namespace ServoTester
           // try catch
           try
           {
+            Packet.MakeAndSendData(1, 5, 0);
             // 닫기
             Comm.Close();
             // timer 정지
@@ -152,6 +156,9 @@ namespace ServoTester
             workTimer.Stop();
             // button text 바꾸기
             btCommOpen.Text = @"Open";
+
+            // event 함수 닫기
+            Comm.Port.DataReceived -= new SerialDataReceivedEventHandler(DataReceivedHandler);
             myThread_flag = false;
             
             rbSpeedMode.Checked = false;
@@ -181,7 +188,31 @@ namespace ServoTester
         myThreading = true;
         Comm.ProcessPcMcReceivedCommData();
         myThreading = false;
-        Thread.Sleep(20);
+        Thread.Sleep(50);
+      }
+    }
+
+    public void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+    {
+      if (Comm.Port.IsOpen)
+      {
+        try
+        {
+          Comm.port_working = true;
+          byte[] data = Comm.Port.Encoding.GetBytes(Comm.Port.ReadExisting());
+          for (int i = 0; i < data.Count(); i++)
+          {
+            Comm.cq.Enqueue(data[i]);
+          }
+          Comm.port_working = false;
+        }
+        catch
+        {
+          MessageBox.Show("Enque 에러.");
+        }
+        finally
+        {
+        }
       }
     }
 
@@ -207,7 +238,7 @@ namespace ServoTester
       else
         Graph.CheckGraphFeedCurrent = false;
 
-      if (Port.IsOpen)
+      if (Comm.Port.IsOpen)
       {
         if (myThreading == false)
         {
@@ -251,7 +282,7 @@ namespace ServoTester
 
     private void Click_SpeedTorqueMode(object sender, EventArgs e)
     {
-      if (!Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       if (btSpeedTorque.Text == "토크 모드")
       {
         Packet.MakeAndSendData(1, 1, 1);
@@ -266,60 +297,58 @@ namespace ServoTester
 
     private void Click_ServoOnOff(object sender, EventArgs e)
     {
-      if (!Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       if (btServoOnOff.Text == "Servo On")
       {
         Packet.MakeAndSendData(1, 2, 1);
         btServoOnOff.Text = "Servo Off";
         Comm.clear_data();
-        //rbServoOn.Checked = true;
       }
       else
       {
         Packet.MakeAndSendData(1, 2, 0);
         btServoOnOff.Text = "Servo On";
-        //rbServoOff.Checked = true;
       }
     }
 
     private void Click_SetCommand(object sender, EventArgs e)
     {
       int Command = (int)(Convert.ToInt32(tbCommand.Text));
-      if (!Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       Packet.MakeAndSendData(1, 3, Command);
     }
 
     private void Click_ErrorClear(object sender, EventArgs e)
     {
-      if (!Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       Packet.MakeAndSendData(1, 4, 1);
-    }
-
-    private void Click_SpeedKi(object sender, EventArgs e)
-    {
-      int SpeedKp = (int)(Convert.ToInt32(tbSpeedKp.Text));
-      if (Port.IsOpen) return;
-      Packet.MakeAndSendData(2, 1, SpeedKp);
     }
 
     private void Click_SpeedKp(object sender, EventArgs e)
     {
+      int SpeedKp = (int)(Convert.ToInt32(tbSpeedKp.Text));
+      if (!Comm.Port.IsOpen) return;
+      Packet.MakeAndSendData(2, 1, SpeedKp);
+    }
+
+    private void Click_SpeedKi(object sender, EventArgs e)
+    {
       int SpeedKi = (int)(Convert.ToInt32(tbSpeedKi.Text));
-      if (Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       Packet.MakeAndSendData(2, 2, SpeedKi);
     }
 
     private void Click_CurrentKp(object sender, EventArgs e)
     {
       int CurrentKp = (int)(Convert.ToInt32(tbCurrentKp.Text));
-      if (Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       Packet.MakeAndSendData(2, 3, CurrentKp);
     }
 
     private void Click_CurrentKi(object sender, EventArgs e)
     {
       int CurrentKi = (int)(Convert.ToInt32(tbCurrentKi.Text));
-      if (Port.IsOpen) return;
+      if (!Comm.Port.IsOpen) return;
       Packet.MakeAndSendData(2, 4, CurrentKi);
     }
   }

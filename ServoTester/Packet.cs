@@ -13,7 +13,8 @@ namespace ServoTester
   public class _Packet
   {
     Form1 form = null;
-    SerialPort Port = null;
+    //SerialPort Port = null;
+    
     const int _LengthLow = 2;
     const int _LengthHigh = 3;
     const ushort SERIAL_BUF_SIZE = 128 * 16;
@@ -39,7 +40,7 @@ namespace ServoTester
     public _Packet(Form1 _form)
     {
       form = _form;
-      Port = form.Port;
+      //Port = form.Port;
     }
 
     public void MakeAndSendData(byte Command, ushort StartAddress, int Data)
@@ -52,9 +53,10 @@ namespace ServoTester
           if (StartAddress == 1 // 모드설정 1:속도, 0:토크
             || StartAddress == 2 // Servo 1:On, 0:Off
             || StartAddress == 3 // 0:속도(RPM), 1:토크(%)
-            || StartAddress == 4)// 에러 클리어
+            || StartAddress == 4 // 에러 클리어
+            || StartAddress == 5)// Connect
           {
-            MakePacket(Command, StartAddress, Data, ref SendDataPacket);
+            MakePacket(Command, StartAddress, Data);
             u16PtrCnt = CmdAck.u16PtrCnt;
             calc_crc = GetCRC(SendDataPacket, u16PtrCnt + 2);
             SendDataPacket[u16PtrCnt++] = (byte)(calc_crc >> 0);
@@ -70,7 +72,7 @@ namespace ServoTester
             || StartAddress == 3 // 전류 Kp
             || StartAddress == 4)// 전류 Ki
           {
-            MakePacket(Command, StartAddress, Data, ref SendDataPacket);
+            MakePacket(Command, StartAddress, Data);
             u16PtrCnt = CmdAck.u16PtrCnt;
             calc_crc = GetCRC(SendDataPacket, u16PtrCnt + 2);
             SendDataPacket[u16PtrCnt++] = (byte)(calc_crc >> 0);
@@ -90,7 +92,7 @@ namespace ServoTester
       }
     }
 
-    public void MakePacket(byte Command, ushort StartAddress, int Data, ref byte[] SendDataPacket)
+    public void MakePacket(byte Command, ushort StartAddress, int Data)
     {
       ushort u16PtrCnt = 0;
       ushort Revision = 0;
@@ -111,7 +113,7 @@ namespace ServoTester
       {
         switch (StartAddress)
         {
-          case 1:// 모드설정 1:속도, 0:토크
+          case 1:// 모드설정 0:속도, 1:토크
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
             SendDataPacket[u16PtrCnt++] = (byte)0;
             SendDataPacket[u16PtrCnt++] = (byte)0;
@@ -130,6 +132,12 @@ namespace ServoTester
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 24);
             break;
           case 4:// 에러 클리어
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = 0;
+            SendDataPacket[u16PtrCnt++] = 0;
+            SendDataPacket[u16PtrCnt++] = 0;
+            break;
+          case 5:// Connect
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
             SendDataPacket[u16PtrCnt++] = 0;
             SendDataPacket[u16PtrCnt++] = 0;
@@ -231,8 +239,8 @@ namespace ServoTester
     {
       try
       {
-        if (Port.IsOpen && Cnt > 0)
-          Port.Write(Packet, 0, Cnt);
+        if (form.Comm.Port.IsOpen && Cnt > 0)
+          form.Comm.Port.Write(Packet, 0, Cnt);
       }
       finally
       {

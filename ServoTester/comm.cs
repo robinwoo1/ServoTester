@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
+using ScottPlot.Colormaps;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -18,7 +20,7 @@ namespace ServoTester
     Form1 form = null;
     _Packet Packet = null;
     public const ushort SERIAL_BUF_SIZE = 128 * 16;
-    SerialPort Port = null;
+    public SerialPort Port { get; } = new SerialPort();
     public int ControlMode = 0;
     public bool ServoOnOff = false;
     public int ServoError = 0;
@@ -29,6 +31,7 @@ namespace ServoTester
     public ConcurrentQueue<byte> cq = new ConcurrentQueue<byte>();
     public bool port_working = false;
     public bool GraphUpdate = false;
+    public int ReadIndex = 0;
 
     public List<double> Data_ch1 = new List<double>();
     public List<double> Data_ch2 = new List<double>();
@@ -57,11 +60,28 @@ namespace ServoTester
     }
     TestUnion d = new TestUnion();
 
+    public struct _RingBuf
+    {
+      public uint tail;       // read data pointer
+      public uint head;       // write data pointer
+      public uint old_pos;
+      public byte[] data; // receive buffer
+      public _RingBuf(int a)
+      {
+        this.tail = 0;
+        this.head = 0;
+        this.old_pos = 0;
+        this.data = new byte[SERIAL_BUF_SIZE];
+      }
+    }
+    public _RingBuf RingBuf;
+
     public _comm(Form1 _form)
     {
       form = _form;
       Packet = _form.Packet;
-      Port = _form.Port;
+      this.RingBuf = new _RingBuf(0);
+      //Port = _form.Port;
     }
 
     public void Open(string port,int baudrate)
@@ -73,8 +93,6 @@ namespace ServoTester
       Port.Encoding = Encoding.GetEncoding(28591);
       // 통신 시작
       Port.Open();
-      // event 함수 설정
-      Port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
       //clear_data();
     }
 
@@ -86,34 +104,6 @@ namespace ServoTester
       Port.DiscardOutBuffer();
       Port.DiscardInBuffer();
       Port.Close();
-      // event 함수 닫기
-      Port.DataReceived -= new SerialDataReceivedEventHandler(DataReceivedHandler);
-    }
-
-    public void Enqueue()
-    {
-      if (Port.IsOpen)
-      {
-        try
-        {
-          port_working = true;
-          byte[] data = Port.Encoding.GetBytes(Port.ReadExisting());
-          for (int i = 0; i < data.Count(); i++)
-          {
-            cq.Enqueue(data[i]);
-          }
-          port_working = false;
-        }
-        finally
-        {
-          MessageBox.Show("Enque 에러.");
-        }
-      }
-    }
-
-    public void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-    {
-      Enqueue();
     }
 
     public ushort GetCRC(byte[] data, int Length)
@@ -151,6 +141,7 @@ namespace ServoTester
     public void ProcessPcMcReceivedCommData()//ref _Parameter Mc)
     {
       byte data;
+      bool err;
       TestUnion d = new TestUnion();
       while (cq.Count > 0)
       {
@@ -187,7 +178,8 @@ namespace ServoTester
                   if (StartAddress == 1   // 모드설정
                     || StartAddress == 2  // Servo On/Off
                     || StartAddress == 3  // 속도 명령 RPM / 토크 명령 %
-                    || StartAddress == 4) // 에러 Clear
+                    || StartAddress == 4  // 에러 Clear
+                    || StartAddress == 5) // connect
                   {
                     Packet.ResetAckState();
                   }
@@ -218,15 +210,15 @@ namespace ServoTester
                     ControlMode = 0;    // 속도 모드
                   else
                     ControlMode = 1;    // 토크 모드
-                  ServoError = (int)(ComReadBuffer[14] << 0);
-                  ServoError = (int)(ComReadBuffer[15] << 8);
-                  ServoError = (int)(ComReadBuffer[16] << 16);
-                  ServoError = (int)(ComReadBuffer[17] << 24);
+                  ServoError = (int)(ComReadBuffer[12] << 0);
+                  ServoError |= (int)(ComReadBuffer[13] << 8);
+                  ServoError |= (int)(ComReadBuffer[14] << 16);
+                  ServoError |= (int)(ComReadBuffer[15] << 24);
                   
-                  Encoder = (int)(ComReadBuffer[18] << 0);
-                  Encoder = (int)(ComReadBuffer[19] << 8);
-                  Encoder = (int)(ComReadBuffer[20] << 16);
-                  Encoder = (int)(ComReadBuffer[21] << 24);
+                  Encoder = (int)(ComReadBuffer[16] << 0);
+                  Encoder |= (int)(ComReadBuffer[17] << 8);
+                  Encoder |= (int)(ComReadBuffer[18] << 16);
+                  Encoder |= (int)(ComReadBuffer[19] << 24);
                   //Packet.AckSend(Command, Try_num, StartAddress, 0);
                   break;
                 case 4: // graph
@@ -290,5 +282,32 @@ namespace ServoTester
         }
       }
     }
+
+    public bool rb_put(byte d)
+    {
+      uint nhead = (RingBuf.head + 1) & (SERIAL_BUF_SIZE - 1);    // buffer size는 2n으로 
+      if (RingBuf.tail == nhead)
+      {
+        return false;
+      }
+      RingBuf.data[RingBuf.head] = d;
+      RingBuf.head = nhead;
+      return true;
+    }
+
+    public byte rb_get() // pop -> send Ethernet
+    {
+      byte d;
+      uint ntail = (RingBuf.tail + 1) & (SERIAL_BUF_SIZE - 1);
+      
+      if (RingBuf.head == RingBuf.tail)
+      {
+        return 0;       // buffer non-write -> empty
+      }
+      d = RingBuf.data[RingBuf.tail];
+      RingBuf.tail = ntail;
+      return d;       // buffer read
+    }
+
   }
 }
