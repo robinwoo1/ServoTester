@@ -54,7 +54,8 @@ namespace ServoTester
             || StartAddress == 2 // Servo 1:On, 0:Off
             || StartAddress == 3 // 0:속도(RPM), 1:토크(%)
             || StartAddress == 4 // 에러 클리어
-            || StartAddress == 5)// Connect
+            || StartAddress == 5 // Connect
+            || StartAddress == 6)// 1:Start, 0:Stop
           {
             MakePacket(Command, StartAddress, Data);
             u16PtrCnt = CmdAck.u16PtrCnt;
@@ -138,6 +139,12 @@ namespace ServoTester
             SendDataPacket[u16PtrCnt++] = 0;
             break;
           case 5:// Connect
+            SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
+            SendDataPacket[u16PtrCnt++] = 0;
+            SendDataPacket[u16PtrCnt++] = 0;
+            SendDataPacket[u16PtrCnt++] = 0;
+            break;
+          case 6:// 1:Start, 0:Stop
             SendDataPacket[u16PtrCnt++] = (byte)(Data >> 0);
             SendDataPacket[u16PtrCnt++] = 0;
             SendDataPacket[u16PtrCnt++] = 0;

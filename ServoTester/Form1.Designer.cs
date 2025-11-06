@@ -70,6 +70,7 @@
       this.tbEncoder = new System.Windows.Forms.TextBox();
       this.btSetCommand = new System.Windows.Forms.Button();
       this.btErrorClear = new System.Windows.Forms.Button();
+      this.btStartStop = new System.Windows.Forms.Button();
       this.groupBox1.SuspendLayout();
       this.groupBox2.SuspendLayout();
       this.SuspendLayout();
@@ -112,7 +113,7 @@
       // 
       // btCommOpen
       // 
-      this.btCommOpen.Location = new System.Drawing.Point(907, 41);
+      this.btCommOpen.Location = new System.Drawing.Point(907, 39);
       this.btCommOpen.Name = "btCommOpen";
       this.btCommOpen.Size = new System.Drawing.Size(75, 23);
       this.btCommOpen.TabIndex = 5;
@@ -123,7 +124,7 @@
       // label2
       // 
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(768, 48);
+      this.label2.Location = new System.Drawing.Point(768, 46);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(53, 12);
       this.label2.TabIndex = 3;
@@ -144,7 +145,7 @@
             "38400",
             "19200",
             "9600"});
-      this.cbBaudrate.Location = new System.Drawing.Point(829, 43);
+      this.cbBaudrate.Location = new System.Drawing.Point(829, 41);
       this.cbBaudrate.Name = "cbBaudrate";
       this.cbBaudrate.Size = new System.Drawing.Size(71, 20);
       this.cbBaudrate.TabIndex = 4;
@@ -199,9 +200,9 @@
       this.groupBox1.Controls.Add(this.rbTorqueMode);
       this.groupBox1.Controls.Add(this.btSpeedTorque);
       this.groupBox1.Controls.Add(this.rbSpeedMode);
-      this.groupBox1.Location = new System.Drawing.Point(778, 128);
+      this.groupBox1.Location = new System.Drawing.Point(778, 133);
       this.groupBox1.Name = "groupBox1";
-      this.groupBox1.Size = new System.Drawing.Size(204, 47);
+      this.groupBox1.Size = new System.Drawing.Size(204, 37);
       this.groupBox1.TabIndex = 10;
       this.groupBox1.TabStop = false;
       this.groupBox1.Text = "모드 설정";
@@ -209,7 +210,7 @@
       // rbTorqueMode
       // 
       this.rbTorqueMode.AutoSize = true;
-      this.rbTorqueMode.Location = new System.Drawing.Point(153, 21);
+      this.rbTorqueMode.Location = new System.Drawing.Point(153, 15);
       this.rbTorqueMode.Name = "rbTorqueMode";
       this.rbTorqueMode.Size = new System.Drawing.Size(47, 16);
       this.rbTorqueMode.TabIndex = 25;
@@ -219,9 +220,9 @@
       // 
       // btSpeedTorque
       // 
-      this.btSpeedTorque.Location = new System.Drawing.Point(8, 16);
+      this.btSpeedTorque.Location = new System.Drawing.Point(8, 12);
       this.btSpeedTorque.Name = "btSpeedTorque";
-      this.btSpeedTorque.Size = new System.Drawing.Size(89, 23);
+      this.btSpeedTorque.Size = new System.Drawing.Size(89, 20);
       this.btSpeedTorque.TabIndex = 23;
       this.btSpeedTorque.Text = "토크 모드";
       this.btSpeedTorque.UseVisualStyleBackColor = true;
@@ -230,7 +231,7 @@
       // rbSpeedMode
       // 
       this.rbSpeedMode.AutoSize = true;
-      this.rbSpeedMode.Location = new System.Drawing.Point(104, 21);
+      this.rbSpeedMode.Location = new System.Drawing.Point(104, 15);
       this.rbSpeedMode.Name = "rbSpeedMode";
       this.rbSpeedMode.Size = new System.Drawing.Size(47, 16);
       this.rbSpeedMode.TabIndex = 24;
@@ -395,7 +396,7 @@
       // 
       // btServoOnOff
       // 
-      this.btServoOnOff.Location = new System.Drawing.Point(786, 181);
+      this.btServoOnOff.Location = new System.Drawing.Point(786, 177);
       this.btServoOnOff.Name = "btServoOnOff";
       this.btServoOnOff.Size = new System.Drawing.Size(89, 23);
       this.btServoOnOff.TabIndex = 13;
@@ -406,7 +407,7 @@
       // label9
       // 
       this.label9.AutoSize = true;
-      this.label9.Location = new System.Drawing.Point(811, 217);
+      this.label9.Location = new System.Drawing.Point(787, 213);
       this.label9.Name = "label9";
       this.label9.Size = new System.Drawing.Size(29, 12);
       this.label9.TabIndex = 9;
@@ -414,7 +415,7 @@
       // 
       // tbCommand
       // 
-      this.tbCommand.Location = new System.Drawing.Point(867, 211);
+      this.tbCommand.Location = new System.Drawing.Point(822, 208);
       this.tbCommand.Name = "tbCommand";
       this.tbCommand.Size = new System.Drawing.Size(58, 21);
       this.tbCommand.TabIndex = 8;
@@ -423,7 +424,7 @@
       // rbServoOff
       // 
       this.rbServoOff.AutoSize = true;
-      this.rbServoOff.Location = new System.Drawing.Point(882, 186);
+      this.rbServoOff.Location = new System.Drawing.Point(882, 182);
       this.rbServoOff.Name = "rbServoOff";
       this.rbServoOff.Size = new System.Drawing.Size(38, 16);
       this.rbServoOff.TabIndex = 14;
@@ -434,7 +435,7 @@
       // rbServoOn
       // 
       this.rbServoOn.AutoSize = true;
-      this.rbServoOn.Location = new System.Drawing.Point(931, 186);
+      this.rbServoOn.Location = new System.Drawing.Point(931, 182);
       this.rbServoOn.Name = "rbServoOn";
       this.rbServoOn.Size = new System.Drawing.Size(39, 16);
       this.rbServoOn.TabIndex = 15;
@@ -445,7 +446,7 @@
       // label10
       // 
       this.label10.AutoSize = true;
-      this.label10.Location = new System.Drawing.Point(801, 106);
+      this.label10.Location = new System.Drawing.Point(801, 105);
       this.label10.Name = "label10";
       this.label10.Size = new System.Drawing.Size(57, 12);
       this.label10.TabIndex = 16;
@@ -453,7 +454,7 @@
       // 
       // tbEncoder
       // 
-      this.tbEncoder.Location = new System.Drawing.Point(867, 101);
+      this.tbEncoder.Location = new System.Drawing.Point(867, 100);
       this.tbEncoder.Name = "tbEncoder";
       this.tbEncoder.Size = new System.Drawing.Size(58, 21);
       this.tbEncoder.TabIndex = 17;
@@ -461,7 +462,7 @@
       // 
       // btSetCommand
       // 
-      this.btSetCommand.Location = new System.Drawing.Point(931, 212);
+      this.btSetCommand.Location = new System.Drawing.Point(883, 207);
       this.btSetCommand.Name = "btSetCommand";
       this.btSetCommand.Size = new System.Drawing.Size(38, 23);
       this.btSetCommand.TabIndex = 22;
@@ -479,11 +480,22 @@
       this.btErrorClear.UseVisualStyleBackColor = true;
       this.btErrorClear.Click += new System.EventHandler(this.Click_ErrorClear);
       // 
+      // btStartStop
+      // 
+      this.btStartStop.Location = new System.Drawing.Point(925, 207);
+      this.btStartStop.Name = "btStartStop";
+      this.btStartStop.Size = new System.Drawing.Size(52, 23);
+      this.btStartStop.TabIndex = 24;
+      this.btStartStop.Text = "Start";
+      this.btStartStop.UseVisualStyleBackColor = true;
+      this.btStartStop.Click += new System.EventHandler(this.Click_StartStop);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(993, 415);
+      this.Controls.Add(this.btStartStop);
       this.Controls.Add(this.btErrorClear);
       this.Controls.Add(this.btSetCommand);
       this.Controls.Add(this.label10);
@@ -565,6 +577,7 @@
     private System.Windows.Forms.Button btSpeedTorque;
     private System.Windows.Forms.RadioButton rbSpeedMode;
     private System.Windows.Forms.Button btErrorClear;
+    private System.Windows.Forms.Button btStartStop;
   }
 }
 

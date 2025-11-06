@@ -351,5 +351,20 @@ namespace ServoTester
       if (!Comm.Port.IsOpen) return;
       Packet.MakeAndSendData(2, 4, CurrentKi);
     }
+
+    private void Click_StartStop(object sender, EventArgs e)
+    {
+      if (!Comm.Port.IsOpen) return;
+      if (btStartStop.Text == "Start")
+      {
+        Packet.MakeAndSendData(1, 6, 1);
+        btStartStop.Text = "Stop";
+      }
+      else
+      {
+        Packet.MakeAndSendData(1, 6, 0);
+        btStartStop.Text = "Start";
+      }
+    }
   }
 }

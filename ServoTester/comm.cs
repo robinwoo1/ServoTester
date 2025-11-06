@@ -175,11 +175,12 @@ namespace ServoTester
               switch (Command)
               {
                 case 1: // 명령
-                  if (StartAddress == 1   // 모드설정
-                    || StartAddress == 2  // Servo On/Off
+                  if (StartAddress == 1   // 모드설정 1:속도, 0:토크
+                    || StartAddress == 2  // Servo 1:On, 0:Off
                     || StartAddress == 3  // 속도 명령 RPM / 토크 명령 %
                     || StartAddress == 4  // 에러 Clear
-                    || StartAddress == 5) // connect
+                    || StartAddress == 5  // connect
+                    || StartAddress == 6) // 1:Start, 0:Stop
                   {
                     Packet.ResetAckState();
                   }
